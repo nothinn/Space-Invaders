@@ -1,0 +1,5 @@
+function ar
+
+global vx vy
+vx=0*vx+;
+vy=0.9*vy;
