@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2035
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Space Invaders", "Space Invaders\Space Invaders.pyproj", "{1643CD9C-1685-402A-98C5-67A6A0068E10}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1643CD9C-1685-402A-98C5-67A6A0068E10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1643CD9C-1685-402A-98C5-67A6A0068E10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {43C03040-6EA9-4C27-86A6-926AB1344A63}
+	EndGlobalSection
+EndGlobal

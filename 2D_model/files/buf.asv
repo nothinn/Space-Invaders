@@ -1,4 +1,0 @@
-function buf
-global fx hf
-
-fx=0;

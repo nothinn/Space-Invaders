@@ -1,2 +1,0 @@
-function plot_ball(x,y,xd,yd,c);
-fill(x,)
