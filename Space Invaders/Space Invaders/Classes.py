@@ -11,6 +11,9 @@ class debris(arcade.Sprite):
 		self.center_y = y
 		self.vel_vector = vel_vector
 
+	def update(self, delta_time):
+		self.center_x += self.vel_vector[0]*delta_time
+		self.center_y += self.vel_vector[1]*delta_time
 
 
 class projectile(arcade.Sprite):
