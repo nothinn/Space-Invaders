@@ -61,6 +61,18 @@ class MyGame(arcade.Window):
 
 			self.projectile_list.append(projectile)
 			self.sprites_list.append(projectile)
+		
+		elif symbol == arcade.key.M:
+
+			new_debris = Classes.debris(100, 100, [0.1, 0.1], "Images/debris.png")
+			self.debris_list.append(new_debris)
+			self.sprites_list.append(new_debris)
+
+			pro_angle_1, pro_angle_2 = functions.get_net_angle_immediate(0.2, self.satellite.center_x, self.satellite.center_y, 0.1, 0.1, 100, 100)
+
+			new_projectile = Classes.projectile(0.5, self.satellite.center_x, self.satellite.center_y,[math.cos(math.radians(pro_angle_1))*0.2, math.sin(math.radians(pro_angle_1))*0.2])
+			self.projectile_list.append(new_projectile)
+			self.sprites_list.append(new_projectile)
 
 
 	def on_draw(self):
@@ -75,6 +87,9 @@ class MyGame(arcade.Window):
 		self.satellite.update_angle(self.debris_list[0])
 		
 		for member in self.projectile_list:
+			member.update(delta_time*100)
+
+		for member in self.debris_list:
 			member.update(delta_time*100)
 
 
