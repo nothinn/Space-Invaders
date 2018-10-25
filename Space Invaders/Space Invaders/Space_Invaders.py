@@ -86,6 +86,11 @@ class MyGame(arcade.Window):
 	def on_draw(self):
 		arcade.start_render()
 
+
+		#Write text on the screen in the top left corner
+		arcade.draw_text("Number of debris:{}\nNumber of nets:{}\nNumber of netted debris:{}".format(len(self.debris_list),len(self.projectile_list),len(self.netted_debris_list)),
+                         10, SCREEN_HEIGHT -10, arcade.color.BLACK, 12, anchor_x="left", anchor_y="top")
+
 		#Draw all sprites
 		self.sprites_list.draw()
 
