@@ -33,8 +33,9 @@ def get_net_angle_immediate(abs_vel_net, pos_x_satalite, pos_y_satalite, vel_x_d
     if angle_before_rotate >= 0:
         degrees_of_rotation = 90 - angle_before_rotate
     else:
-        abs_vel_debris *= -1 # the debris will be moving the negative y direction
-        degrees_of_rotation = -1*(90 + angle_before_rotate)
+        degrees_of_rotation = -1*angle_before_rotate + 90
+
+    degrees_of_rotation *= -1
 
     pos_x_debris_after_rotation = pos_y_debris_center*math.sin(math.radians(degrees_of_rotation)) + pos_x_debris_center*math.cos(math.radians(degrees_of_rotation))
     pos_y_debris_after_rotation = pos_y_debris_center*math.cos(math.radians(degrees_of_rotation)) - pos_x_debris_center*math.sin(math.radians(degrees_of_rotation))
@@ -43,11 +44,12 @@ def get_net_angle_immediate(abs_vel_net, pos_x_satalite, pos_y_satalite, vel_x_d
     rotated_aim_1 = math.atan2(((pos_x_debris_after_rotation**2) * abs_vel_debris + math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2) * pos_y_debris_after_rotation)/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2),
                               (-abs_vel_debris * pos_y_debris_after_rotation + math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2))*pos_x_debris_after_rotation/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2))
     
-    rotated_aim_2 = math.atan2(((pos_x_debris_after_rotation**2) * abs_vel_debris - math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2) * pos_y_debris_after_rotation)/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2), 
+    '''rotated_aim_2 = math.atan2(((pos_x_debris_after_rotation**2) * abs_vel_debris - math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2) * pos_y_debris_after_rotation)/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2), 
                                -((abs_vel_debris * pos_y_debris_after_rotation + math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2))*pos_x_debris_after_rotation/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2)))
-    
-    # get the angle in the non-roted system
-    aim_1 = math.degrees(rotated_aim_1) - degrees_of_rotation
-    aim_2 = math.degrees(rotated_aim_2) - degrees_of_rotation
+    '''
 
-    return aim_1, aim_2
+    # get the angle in the non-roted system
+    aim_1 = math.degrees(rotated_aim_1) + degrees_of_rotation
+    #aim_2 = math.degrees(rotated_aim_2) + degrees_of_rotation
+
+    return aim_1 #, aim_2
