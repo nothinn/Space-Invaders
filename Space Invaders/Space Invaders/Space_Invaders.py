@@ -27,6 +27,7 @@ class MyGame(arcade.Window):
 		self.sprites_list = None
 		self.debris_list = None
 		self.projectile_list = None
+		self.collisioned_list = None
 
 
 	def setup(self):
@@ -49,6 +50,9 @@ class MyGame(arcade.Window):
 
 		self.debris_list.append(debris)
 		self.sprites_list.append(debris)
+
+		self.satellite.update_angle(self.debris_list[0])
+
 
 
 		
@@ -84,7 +88,6 @@ class MyGame(arcade.Window):
 
 
 	def update(self, delta_time):
-		self.satellite.update_angle(self.debris_list[0])
 		
 		for member in self.projectile_list:
 			member.update(delta_time*100)
@@ -92,8 +95,15 @@ class MyGame(arcade.Window):
 		for member in self.debris_list:
 			member.update(delta_time*100)
 
-
-
+		#Test for collisions:
+		for projectile in self.projectile_list:
+			for debris in self.debris_list:
+				if functions.collision(projectile, debris):
+					print("Collision detected at X:{}, Y:{}".format(projectile.center_x, projectile.center_y))
+					projectile.kill()
+					debris.kill()
+					
+					
 
 
 def main():

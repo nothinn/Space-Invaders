@@ -1,5 +1,13 @@
 import math
 
+def collision(projectile, debris):
+
+	if abs(projectile.center_x - debris.center_x) < 5:
+		if abs(projectile.center_y - debris.center_y) < 5:
+			return True
+
+	return False
+
 def vec_to_angle_2d(x,y):
 	
 	radians = math.atan2(y,x)
