@@ -27,7 +27,7 @@ class MyGame(arcade.Window):
 		self.sprites_list = None
 		self.debris_list = None
 		self.projectile_list = None
-		self.collisioned_list = None
+		self.netted_debris_list = None
 
 
 	def setup(self):
@@ -36,6 +36,7 @@ class MyGame(arcade.Window):
 		self.debris_list = arcade.SpriteList()
 		self.sprites_list =	arcade.SpriteList()
 		self.projectile_list = arcade.SpriteList()
+		self.netted_debris_list = list()
 
 
 		#Generate satellite sprite
@@ -52,6 +53,9 @@ class MyGame(arcade.Window):
 		self.sprites_list.append(debris)
 
 		self.satellite.update_angle(self.debris_list[0])
+
+
+		
 
 
 
@@ -94,14 +98,27 @@ class MyGame(arcade.Window):
 
 		for member in self.debris_list:
 			member.update(delta_time*100)
+		for member in self.netted_debris_list:
+			member.update(delta_time*100)
+			if abs(member.debris.center_x) > 1000 or abs(member.debris.center_y) > 1000:
+				member.kill()
+				print("Killed netted debris")
+				self.netted_debris_list.remove(member)
+
+
+	
+
 
 		#Test for collisions:
-		for projectile in self.projectile_list:
-			for debris in self.debris_list:
+		for idx, projectile in enumerate(self.projectile_list):
+			for idy, debris in enumerate(self.debris_list):
 				if functions.collision(projectile, debris):
 					print("Collision detected at X:{}, Y:{}".format(projectile.center_x, projectile.center_y))
-					projectile.kill()
-					debris.kill()
+
+					self.netted_debris_list.append(Classes.netted_debris(projectile,debris))
+					self.projectile_list.remove(projectile)
+					self.debris_list.remove(debris)
+					
 					
 					
 
