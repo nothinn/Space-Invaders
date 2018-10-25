@@ -72,11 +72,11 @@ class MyGame(arcade.Window):
 		
 		elif symbol == arcade.key.M:
 
-			new_debris = Classes.debris(100, 100, [0.1, 0.1], "Images/debris.png")
+			new_debris = Classes.debris(random.uniform(0,600), random.uniform(0,600), [math.cos(random.uniform(-1*math.pi,math.pi))*0.15, math.sin(random.uniform(-1*math.pi,math.pi))*0.15], "Images/debris.png")
 			self.debris_list.append(new_debris)
 			self.sprites_list.append(new_debris)
 
-			pro_angle_1, pro_angle_2 = functions.get_net_angle_immediate(0.2, self.satellite.center_x, self.satellite.center_y, 0.1, 0.1, 100, 100)
+			pro_angle_1 = functions.get_net_angle_immediate(0.2, self.satellite.center_x, self.satellite.center_y, new_debris.vel_vector[0], new_debris.vel_vector[1], new_debris.center_x, new_debris.center_y)
 
 			new_projectile = Classes.projectile(0.5, self.satellite.center_x, self.satellite.center_y,[math.cos(math.radians(pro_angle_1))*0.2, math.sin(math.radians(pro_angle_1))*0.2])
 			self.projectile_list.append(new_projectile)
