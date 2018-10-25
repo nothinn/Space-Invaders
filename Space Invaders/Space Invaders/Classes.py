@@ -80,3 +80,5 @@ class satellite(arcade.Sprite):
 
 		self.angle = functions.vec_to_angle_2d(real_x,real_y)
 
+	def rotate(self, delta_time, direction):
+		self.angle += delta_time * direction*50

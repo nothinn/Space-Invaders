@@ -29,6 +29,9 @@ class MyGame(arcade.Window):
 		self.projectile_list = None
 		self.netted_debris_list = None
 
+		self.right = 0
+		self.left = 0
+
 
 	def setup(self):
 
@@ -82,6 +85,17 @@ class MyGame(arcade.Window):
 			self.projectile_list.append(new_projectile)
 			self.sprites_list.append(new_projectile)
 
+		elif symbol == arcade.key.LEFT:
+			self.left = 1
+		elif symbol == arcade.key.RIGHT:
+			self.right = 1
+
+	def on_key_release(self, symbol, modifiers):
+		if symbol == arcade.key.LEFT:
+			self.left = 0
+		elif symbol == arcade.key.RIGHT:
+			self.right = 0
+
 
 	def on_draw(self):
 		arcade.start_render()
@@ -97,6 +111,7 @@ class MyGame(arcade.Window):
 
 
 	def update(self, delta_time):
+		self.satellite.rotate(delta_time,self.left - self.right)
 		
 		for member in self.projectile_list:
 			member.update(delta_time*100)
