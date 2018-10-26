@@ -53,3 +53,49 @@ def get_net_angle_immediate(abs_vel_net, pos_x_satalite, pos_y_satalite, vel_x_d
     #aim_2 = math.degrees(rotated_aim_2) + degrees_of_rotation
 
     return aim_1 #, aim_2
+
+
+
+   #this functions returns the the time to wait before shooting if we want to hit the debris at a 90 degree angle
+def get_time_to_shoot(abs_vel_net, pos_x_satalite, pos_y_satalite, vel_x_debris, vel_y_debris, pos_x_debris, pos_y_debris):
+	#First we move the satalite to the center of coordinate system
+	pos_x_debris_center = pos_x_debris - pos_x_satalite
+	pos_y_debris_center = pos_y_debris - pos_x_satalite
+    
+    # Now we rotate the system such that the debris is traveling parallel to the y axis
+	abs_vel_debris = math.sqrt(vel_x_debris**2 + vel_y_debris**2)
+	angle_before_rotate = vec_to_angle_2d(vel_x_debris,vel_y_debris)
+	degrees_of_rotation = 0
+
+	if angle_before_rotate >= 0:
+		degrees_of_rotation = 90 - angle_before_rotate
+	else:
+		degrees_of_rotation = -1*angle_before_rotate + 90
+
+	degrees_of_rotation *= -1 # we rotate such that the debris is moving in the posative y direction
+
+	pos_x_debris_after_rotation = pos_y_debris_center*math.sin(math.radians(degrees_of_rotation)) + pos_x_debris_center*math.cos(math.radians(degrees_of_rotation))
+	pos_y_debris_after_rotation = pos_y_debris_center*math.cos(math.radians(degrees_of_rotation)) - pos_x_debris_center*math.sin(math.radians(degrees_of_rotation))
+
+	if pos_y_debris_after_rotation > 0:
+		return -1 # it is too late to hit the debris
+	
+	# calculate the time for the net to reach collition point :
+	if pos_x_debris_after_rotation>=0:
+		t_n = pos_x_debris_after_rotation / (abs_vel_net*math.cos(0)) #debris is moving in y direction only on posative site of x, then the 0 degrees is where we should aim to hit with 90 degrees
+	else:
+		t_n = pos_x_debris_after_rotation / (abs_vel_net*math.cos(math.pi)) #debris is moving in y direction only on posative site of x, then the 180 degrees is where we should aim to hit with 90 degrees
+
+	# calculate time for the debris to reach collition point :
+	coll_p_y = 0 #collision point in y direction
+	
+	t_d = (coll_p_y - pos_y_debris_after_rotation) / abs_vel_debris
+
+	#the time that we must wait are the difference between the two times
+
+	t_wait = t_d - t_n
+
+	if t_wait < 0:
+		return -1 # the time to wait is negative which means we do not have time.
+	
+	return t_wait
