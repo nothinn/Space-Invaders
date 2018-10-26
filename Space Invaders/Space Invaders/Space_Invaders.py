@@ -31,6 +31,7 @@ class MyGame(arcade.Window):
 
 		self.right = 0
 		self.left = 0
+		self.total_time = 0.0
 
 
 	def setup(self):
@@ -40,6 +41,7 @@ class MyGame(arcade.Window):
 		self.sprites_list =	arcade.SpriteList()
 		self.projectile_list = arcade.SpriteList()
 		self.netted_debris_list = list()
+		self.total_time = 0.0
 
 
 		#Generate satellite sprite
@@ -79,9 +81,9 @@ class MyGame(arcade.Window):
 			self.debris_list.append(new_debris)
 			self.sprites_list.append(new_debris)
 
-			pro_angle_1 = functions.get_net_angle_immediate(0.2, self.satellite.center_x, self.satellite.center_y, new_debris.vel_vector[0], new_debris.vel_vector[1], new_debris.center_x, new_debris.center_y)
+			pro_angle_1 = functions.get_net_angle_immediate(0.4, self.satellite.center_x, self.satellite.center_y, new_debris.vel_vector[0], new_debris.vel_vector[1], new_debris.center_x, new_debris.center_y)
 
-			new_projectile = Classes.projectile(0.5, self.satellite.center_x, self.satellite.center_y,[math.cos(math.radians(pro_angle_1))*0.2, math.sin(math.radians(pro_angle_1))*0.2])
+			new_projectile = Classes.projectile(0.5, self.satellite.center_x, self.satellite.center_y,[math.cos(math.radians(pro_angle_1))*0.4, math.sin(math.radians(pro_angle_1))*0.4])
 			self.projectile_list.append(new_projectile)
 			self.sprites_list.append(new_projectile)
 
@@ -100,18 +102,24 @@ class MyGame(arcade.Window):
 	def on_draw(self):
 		arcade.start_render()
 
+		# Calculate time
+		hours = int(self.total_time) // 3600
+		minutes = int(self.total_time) // 60 % 60
+		seconds = int(self.total_time) % 60 # using a modulus (remainder)
+        # Figure out our output
+		time_list = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
 		#Write text on the screen in the top left corner
-		arcade.draw_text("Number of debris:{}\nNumber of nets:{}\nNumber of netted debris:{}".format(len(self.debris_list),len(self.projectile_list),len(self.netted_debris_list)),
+		arcade.draw_text("Number of debris: {}\nNumber of nets: {}\nNumber of netted debris: {}\nTime: {}".format(len(self.debris_list),len(self.projectile_list),len(self.netted_debris_list),(time_list)),
                          10, SCREEN_HEIGHT -10, arcade.color.BLACK, 12, anchor_x="left", anchor_y="top")
 
 		#Draw all sprites
 		self.sprites_list.draw()
 
 
-
 	def update(self, delta_time):
 		self.satellite.rotate(delta_time,self.left - self.right)
+		self.total_time += delta_time
 		
 		for member in self.projectile_list:
 			member.update(delta_time*100)
