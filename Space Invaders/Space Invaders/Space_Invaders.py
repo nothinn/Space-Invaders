@@ -58,6 +58,7 @@ class MyGame(arcade.Window):
 		self.sprites_list.append(debris)
 
 		self.satellite.update_angle(self.debris_list[0])
+		
 
 
 		
@@ -118,9 +119,18 @@ class MyGame(arcade.Window):
 
 
 	def update(self, delta_time):
-		self.satellite.rotate(delta_time,self.left - self.right)
 		self.total_time += delta_time
 		
+
+		self.satellite.update(delta_time)
+		if self.satellite.time_to_shoot <= 0:
+			shot = self.satellite.get_projectile()
+			self.projectile_list.append(shot)
+			self.sprites_list.append(shot)
+
+			self.satellite.time_to_shoot = float("inf")
+
+
 		for member in self.projectile_list:
 			member.update(delta_time*100)
 

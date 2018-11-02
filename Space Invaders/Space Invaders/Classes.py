@@ -72,6 +72,12 @@ class satellite(arcade.Sprite):
 		self.angle = 0
 
 
+		
+		#Setup values needed for updating the satelllite
+		self.has_objective = False
+		self.angle_goal = 0
+		self.time_to_shoot = float("inf")
+
 
 	def update_angle(self, debris):
 
@@ -82,3 +88,37 @@ class satellite(arcade.Sprite):
 
 	def rotate(self, delta_time, direction):
 		self.angle += delta_time * direction*50
+
+
+	def update(self, delta_time):
+		if(self.has_objective):
+			#Move the satellite towards the right angle
+			if self.angle != self.angle_goal:
+				if self.angle_goal > self.angle:
+					self.rotate(delta_time,1)
+				else:
+					self.rotate(delta_time,-1)
+
+			#Update the time to shoot:
+			self.time_to_shoot -= delta_time
+
+
+
+
+	def has_objective(self):
+		return self.has_objective
+
+	def give_objective(self, debris):
+		self.has_objective = True
+
+		#Insert calculation for finding the angle the satellite should have
+		self.angle_goal = 42
+		
+		#Insert calculation for finding the time to shoot
+		self.time_to_shoot = 42
+
+
+	def get_projectile(self):
+		shot = projectile(0.5,self.center_x, self.center_y, functions.angle_to_vec_2d(self.angle), "Images/net.png")
+
+		return shot
