@@ -17,6 +17,7 @@ class netted_debris():
 
 
 
+
 		projectile.vel_vector = new_vel_vector
 		debris.vel_vector = new_vel_vector
 
@@ -94,10 +95,19 @@ class satellite(arcade.Sprite):
 		if(self.has_objective):
 			#Move the satellite towards the right angle
 			if self.angle != self.angle_goal:
+				movement = 1
+
+				difference = abs(self.angle - self.angle_goal)
+
+				if difference < 10:
+					movement = difference/10
+
+
+
 				if self.angle_goal > self.angle:
-					self.rotate(delta_time,1)
+					self.rotate(delta_time,movement)
 				else:
-					self.rotate(delta_time,-1)
+					self.rotate(delta_time,-movement)
 
 			#Update the time to shoot:
 			self.time_to_shoot -= delta_time
@@ -111,11 +121,13 @@ class satellite(arcade.Sprite):
 	def give_objective(self, debris):
 		self.has_objective = True
 
+		wait_time, aim_angle = functions.get_time_to_shoot(1, self, debris)
+
 		#Insert calculation for finding the angle the satellite should have
-		self.angle_goal = 42
+		self.angle_goal = aim_angle
 		
 		#Insert calculation for finding the time to shoot
-		self.time_to_shoot = 42
+		self.time_to_shoot = wait_time
 
 
 	def get_projectile(self):
