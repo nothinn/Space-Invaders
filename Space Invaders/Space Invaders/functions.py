@@ -20,44 +20,58 @@ def angle_to_vec_2d(angle):
 	y = math.sin(math.radians(angle))
 	return x, y
 
-def get_net_angle_immediate(abs_vel_net, pos_x_satalite, pos_y_satalite, vel_x_debris, vel_y_debris, pos_x_debris, pos_y_debris):
+def get_net_angle_immediate(abs_vel_net, satellite, debris):
+	pos_x_satalite = satellite.center_x
+	pos_y_satalite = satellite.center_y
+	vel_x_debris = debris.vel_vector[0]
+	vel_y_debris = debris.vel_vector[1]
+	pos_x_debris = debris.center_x
+	pos_y_debris = debris.center_y
+
     #First we move the satalite to the center of coordinate system
-    pos_x_debris_center = pos_x_debris - pos_x_satalite
-    pos_y_debris_center = pos_y_debris - pos_x_satalite
+	pos_x_debris_center = pos_x_debris - pos_x_satalite
+	pos_y_debris_center = pos_y_debris - pos_x_satalite
     
     # Now we rotate the system such that the debris is traveling parallel to the y axis
-    abs_vel_debris = math.sqrt(vel_x_debris**2 + vel_y_debris**2)
-    angle_before_rotate = vec_to_angle_2d(vel_x_debris,vel_y_debris)
-    degrees_of_rotation = 0
+	abs_vel_debris = math.sqrt(vel_x_debris**2 + vel_y_debris**2)
+	angle_before_rotate = vec_to_angle_2d(vel_x_debris,vel_y_debris)
+	degrees_of_rotation = 0
 
-    if angle_before_rotate >= 0:
-        degrees_of_rotation = 90 - angle_before_rotate
-    else:
-        degrees_of_rotation = -1*angle_before_rotate + 90
+	if angle_before_rotate >= 0:
+	    degrees_of_rotation = 90 - angle_before_rotate
+	else:
+	    degrees_of_rotation = -1*angle_before_rotate + 90
 
-    degrees_of_rotation *= -1
+	degrees_of_rotation *= -1
 
-    pos_x_debris_after_rotation = pos_y_debris_center*math.sin(math.radians(degrees_of_rotation)) + pos_x_debris_center*math.cos(math.radians(degrees_of_rotation))
-    pos_y_debris_after_rotation = pos_y_debris_center*math.cos(math.radians(degrees_of_rotation)) - pos_x_debris_center*math.sin(math.radians(degrees_of_rotation))
+	pos_x_debris_after_rotation = pos_y_debris_center*math.sin(math.radians(degrees_of_rotation)) + pos_x_debris_center*math.cos(math.radians(degrees_of_rotation))
+	pos_y_debris_after_rotation = pos_y_debris_center*math.cos(math.radians(degrees_of_rotation)) - pos_x_debris_center*math.sin(math.radians(degrees_of_rotation))
 
     #calculate the two possiple angles to aim for in rotated system
-    rotated_aim_1 = math.atan2(((pos_x_debris_after_rotation**2) * abs_vel_debris + math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2) * pos_y_debris_after_rotation)/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2),
-                              (-abs_vel_debris * pos_y_debris_after_rotation + math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2))*pos_x_debris_after_rotation/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2))
+	rotated_aim_1 = math.atan2(((pos_x_debris_after_rotation**2) * abs_vel_debris + math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2) * pos_y_debris_after_rotation)/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2),
+	                          (-abs_vel_debris * pos_y_debris_after_rotation + math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2))*pos_x_debris_after_rotation/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2))
     
-    '''rotated_aim_2 = math.atan2(((pos_x_debris_after_rotation**2) * abs_vel_debris - math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2) * pos_y_debris_after_rotation)/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2), 
+	'''rotated_aim_2 = math.atan2(((pos_x_debris_after_rotation**2) * abs_vel_debris - math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2) * pos_y_debris_after_rotation)/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2), 
                                -((abs_vel_debris * pos_y_debris_after_rotation + math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2))*pos_x_debris_after_rotation/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2)))
     '''
 
     # get the angle in the non-roted system
-    aim_1 = math.degrees(rotated_aim_1) + degrees_of_rotation
+	aim_1 = math.degrees(rotated_aim_1) + degrees_of_rotation
     #aim_2 = math.degrees(rotated_aim_2) + degrees_of_rotation
 
-    return aim_1 #, aim_2
+	return aim_1 #, aim_2
 
 
 
    #this functions returns the the time to wait before shooting if we want to hit the debris at a 90 degree angle
-def get_time_to_shoot(abs_vel_net, pos_x_satalite, pos_y_satalite, vel_x_debris, vel_y_debris, pos_x_debris, pos_y_debris):
+def get_time_to_shoot(abs_vel_net, satellite, debris):
+	pos_x_satalite = satellite.center_x
+	pos_y_satalite = satellite.center_y
+	vel_x_debris = debris.vel_vector[0]
+	vel_y_debris = debris.vel_vector[1]
+	pos_x_debris = debris.center_x
+	pos_y_debris = debris.center_y
+
 	#First we move the satalite to the center of coordinate system
 	pos_x_debris_center = pos_x_debris - pos_x_satalite
 	pos_y_debris_center = pos_y_debris - pos_x_satalite
@@ -102,4 +116,4 @@ def get_time_to_shoot(abs_vel_net, pos_x_satalite, pos_y_satalite, vel_x_debris,
 	if t_wait < 0:
 		return -1 # the time to wait is negative which means we do not have time.
 	
-	return t_wait, aim
+	return t_wait/100, aim
