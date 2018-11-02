@@ -78,13 +78,15 @@ class MyGame(arcade.Window):
 		
 		elif symbol == arcade.key.M:
 
-			new_debris = Classes.debris(random.uniform(0,600), random.uniform(0,600), [math.cos(random.uniform(-1*math.pi,math.pi))*0.15, math.sin(random.uniform(-1*math.pi,math.pi))*0.15], "Images/debris.png")
+			debris_vel = 0.15
+			new_debris = Classes.debris(random.uniform(0,600), random.uniform(0,600), [math.cos(random.uniform(-1*math.pi,math.pi))*debris_vel, math.sin(random.uniform(-1*math.pi,math.pi))*debris_vel], "Images/debris.png")
 			self.debris_list.append(new_debris)
 			self.sprites_list.append(new_debris)
 
-			pro_angle_1 = functions.get_net_angle_immediate(0.4, self.satellite.center_x, self.satellite.center_y, new_debris.vel_vector[0], new_debris.vel_vector[1], new_debris.center_x, new_debris.center_y)
+			pro_angle_1 = functions.get_net_angle_immediate(0.4, self.satellite, new_debris)
 
-			new_projectile = Classes.projectile(0.5, self.satellite.center_x, self.satellite.center_y,[math.cos(math.radians(pro_angle_1))*0.4, math.sin(math.radians(pro_angle_1))*0.4])
+			projetile_vel = 0.4
+			new_projectile = Classes.projectile(0.5, self.satellite.center_x, self.satellite.center_y,[math.cos(math.radians(pro_angle_1))*projetile_vel, math.sin(math.radians(pro_angle_1))*projetile_vel])
 			self.projectile_list.append(new_projectile)
 			self.sprites_list.append(new_projectile)
 
@@ -92,12 +94,19 @@ class MyGame(arcade.Window):
 			self.left = 1
 		elif symbol == arcade.key.RIGHT:
 			self.right = 1
+		elif symbol == arcade.key.N:
+			debris_vel = 0.3
+			new_debris = Classes.debris(random.uniform(0,600), random.uniform(0,600), [math.cos(random.uniform(-1*math.pi,math.pi))*debris_vel, math.sin(random.uniform(-1*math.pi,math.pi))*debris_vel], "Images/debris.png")
+			self.debris_list.append(new_debris)
+			self.sprites_list.append(new_debris)
+			self.satellite.give_objective(new_debris)
 
 	def on_key_release(self, symbol, modifiers):
 		if symbol == arcade.key.LEFT:
 			self.left = 0
 		elif symbol == arcade.key.RIGHT:
 			self.right = 0
+
 
 
 	def on_draw(self):
