@@ -10,6 +10,7 @@ import math
 
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 600
+TIME_MULTIPLIER = 100
 
 
 
@@ -32,6 +33,11 @@ class MyGame(arcade.Window):
 		self.right = 0
 		self.left = 0
 		self.total_time = 0.0
+		
+		# for canvas center - relative to model coordinate system
+		self.canvas_center_x = 0 # equal to satalite real in (set update)
+		self.canvas_center_y = 0
+		 
 
 
 	def setup(self):
@@ -45,12 +51,12 @@ class MyGame(arcade.Window):
 
 
 		#Generate satellite sprite
-		self.satellite = Classes.satellite("Images/satellite.png",0.2)
+		self.satellite = Classes.satellite(0, 705*10**3, "Images/satellite.png",0.2)
 		self.sprites_list.append(self.satellite)
 
 
 		#Generate debris sprite
-		debris = Classes.debris(random.uniform(0,600),random.uniform(0,600),[0,0], "Images/debris.png")
+		debris = Classes.debris(random.uniform(self.satellite.model_x - (SCREEN_WIDTH/2), self.satellite.model_x + (SCREEN_WIDTH/2)),random.uniform(self.satellite.model_y-(SCREEN_WIDTH/2),self.satellite.model_y + (SCREEN_WIDTH/2)), [0,0],"Images/debris.png", 0, 705*10**3)
 		#debris = Classes.debris(300,500,[0,0], "Images/debris.png")
 
 
@@ -129,9 +135,11 @@ class MyGame(arcade.Window):
 
 	def update(self, delta_time):
 		self.total_time += delta_time
+		self.canvas_center_x = self.satellite.model_x
+		self.canvas_center_y = self.satellite.model_y
 		
 
-		self.satellite.update(delta_time)
+		
 		if self.satellite.time_to_shoot <= 0:
 			shot = self.satellite.get_projectile()
 			self.projectile_list.append(shot)
@@ -141,12 +149,12 @@ class MyGame(arcade.Window):
 
 
 		for member in self.projectile_list:
-			member.update(delta_time*100)
+			member.update(delta_time*TIME_MULTIPLIER, self.canvas_center_x, self.canvas_center_y)
 
 		for member in self.debris_list:
-			member.update(delta_time*100)
+			member.update(delta_time*TIME_MULTIPLIER, self.canvas_center_x, self.canvas_center_y)
 		for member in self.netted_debris_list:
-			member.update(delta_time*100)
+			member.update(delta_time*TIME_MULTIPLIER, self.canvas_center_x, self.canvas_center_y)
 			if abs(member.debris.center_x) > 1000 or abs(member.debris.center_y) > 1000:
 				member.kill()
 				print("Killed netted debris")

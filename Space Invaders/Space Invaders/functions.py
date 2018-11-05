@@ -117,3 +117,8 @@ def get_time_to_shoot(abs_vel_net, satellite, debris):
 		return -1 # the time to wait is negative which means we do not have time.
 	
 	return t_wait/100, aim
+
+	
+
+def get_canvas_pos(x, y, ref_x, ref_y):
+	return (x - ref_x + 300), (y - ref_y + 300)
