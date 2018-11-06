@@ -21,16 +21,16 @@ def angle_to_vec_2d(angle):
 	return x, y
 
 def get_net_angle_immediate(abs_vel_net, satellite, debris):
-	pos_x_satalite = satellite.center_x
-	pos_y_satalite = satellite.center_y
+	pos_x_satalite = satellite.model_x
+	pos_y_satalite = satellite.model_y
 	vel_x_debris = debris.vel_vector[0]
 	vel_y_debris = debris.vel_vector[1]
-	pos_x_debris = debris.center_x
-	pos_y_debris = debris.center_y
+	pos_x_debris = debris.model_x
+	pos_y_debris = debris.model_y
 
     #First we move the satalite to the center of coordinate system
 	pos_x_debris_center = pos_x_debris - pos_x_satalite
-	pos_y_debris_center = pos_y_debris - pos_x_satalite
+	pos_y_debris_center = pos_y_debris - pos_y_satalite
     
     # Now we rotate the system such that the debris is traveling parallel to the y axis
 	abs_vel_debris = math.sqrt(vel_x_debris**2 + vel_y_debris**2)

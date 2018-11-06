@@ -77,7 +77,7 @@ class MyGame(arcade.Window):
 		if symbol == arcade.key.ENTER:
 
 			vec_x, vec_y = functions.angle_to_vec_2d(self.satellite.angle)
-			projectile = Classes.projectile(0.5,self.satellite.center_x,self.satellite.center_y,[vec_x,vec_y])
+			projectile = Classes.projectile(0.5,self.satellite.center_x,self.satellite.center_y,[vec_x,vec_y], self.canvas_center_x, self.canvas_center_y)
 
 			self.projectile_list.append(projectile)
 			self.sprites_list.append(projectile)
@@ -85,14 +85,14 @@ class MyGame(arcade.Window):
 		elif symbol == arcade.key.M:
 
 			debris_vel = 0.15
-			new_debris = Classes.debris(random.uniform(0,600), random.uniform(0,600), [math.cos(random.uniform(-1*math.pi,math.pi))*debris_vel, math.sin(random.uniform(-1*math.pi,math.pi))*debris_vel], "Images/debris.png")
+			new_debris = Classes.debris(random.uniform(self.canvas_center_x - 300, self.canvas_center_x + 300), random.uniform(self.canvas_center_y - 300, self.canvas_center_y + 300), [math.cos(random.uniform(-1*math.pi,math.pi))*debris_vel, math.sin(random.uniform(-1*math.pi,math.pi))*debris_vel], "Images/debris.png",  self.canvas_center_x, self.canvas_center_y)
 			self.debris_list.append(new_debris)
 			self.sprites_list.append(new_debris)
 
 			pro_angle_1 = functions.get_net_angle_immediate(0.4, self.satellite, new_debris)
 
 			projetile_vel = 0.4
-			new_projectile = Classes.projectile(0.5, self.satellite.center_x, self.satellite.center_y,[math.cos(math.radians(pro_angle_1))*projetile_vel, math.sin(math.radians(pro_angle_1))*projetile_vel])
+			new_projectile = Classes.projectile(0.5, self.satellite.model_x, self.satellite.model_y,[math.cos(math.radians(pro_angle_1))*projetile_vel, math.sin(math.radians(pro_angle_1))*projetile_vel], self.canvas_center_x, self.canvas_center_y)
 			self.projectile_list.append(new_projectile)
 			self.sprites_list.append(new_projectile)
 
@@ -102,7 +102,7 @@ class MyGame(arcade.Window):
 			self.right = 1
 		elif symbol == arcade.key.N:
 			debris_vel = 0.3
-			new_debris = Classes.debris(random.uniform(0,600), random.uniform(0,600), [math.cos(random.uniform(-1*math.pi,math.pi))*debris_vel, math.sin(random.uniform(-1*math.pi,math.pi))*debris_vel], "Images/debris.png")
+			new_debris = Classes.debris(random.uniform(self.canvas_center_x - 300, self.canvas_center_x + 300), random.uniform(self.canvas_center_y - 300, self.canvas_center_y + 300), [math.cos(random.uniform(-1*math.pi,math.pi))*debris_vel, math.sin(random.uniform(-1*math.pi,math.pi))*debris_vel], "Images/debris.png", self.canvas_center_x, self.canvas_center_y)
 			self.debris_list.append(new_debris)
 			self.sprites_list.append(new_debris)
 			self.satellite.give_objective(new_debris)
