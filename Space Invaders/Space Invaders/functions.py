@@ -78,7 +78,7 @@ def get_time_to_shoot(abs_vel_net, satellite, debris):
     
     # Now we rotate the system such that the debris is traveling parallel to the y axis
 	abs_vel_debris = math.sqrt(vel_x_debris**2 + vel_y_debris**2)
-	angle_before_rotate = vec_to_angle_2d(vel_x_debris,vel_y_debris)
+	angle_before_rotate = vec_to_angle_2d(vel_x_debris, vel_y_debris)
 	degrees_of_rotation = 0
 
 	if angle_before_rotate >= 0:
@@ -120,5 +120,9 @@ def get_time_to_shoot(abs_vel_net, satellite, debris):
 
 	
 
-def get_canvas_pos(x, y, ref_x, ref_y):
-	return (x - ref_x + 300), (y - ref_y + 300)
+def get_canvas_pos(x, y, canvas_info):
+	ref_x = canvas_info[0]
+	ref_y = canvas_info[1]
+	zoom_mult = canvas_info[2]
+
+	return (x*zoom_mult - ref_x*zoom_mult + 300), (y*zoom_mult - ref_y*zoom_mult + 300)
