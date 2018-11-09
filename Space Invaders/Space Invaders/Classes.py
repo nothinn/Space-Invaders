@@ -79,6 +79,9 @@ class satellite(arcade.Sprite):
 		self.angle_goal = 0
 		self.time_to_shoot = float("inf")
 
+	def __eq__(self, other):
+		# equality metho for comapring satellite instance
+		return self.__dict__ == other.__dict__
 
 	def update_angle(self, debris):
 
