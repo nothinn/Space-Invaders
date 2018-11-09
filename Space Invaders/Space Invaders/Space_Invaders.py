@@ -59,7 +59,9 @@ class MyGame(arcade.Window):
 
 
 		#Generate debris sprite
-		debris = Classes.debris(random.uniform(self.satellite.model_x - (SCREEN_WIDTH/2), self.satellite.model_x + (SCREEN_WIDTH/2)),random.uniform(self.satellite.model_y-(SCREEN_WIDTH/2),self.satellite.model_y + (SCREEN_WIDTH/2)), [0,0],"Images/debris.png", [0, 705*10**3, 1])
+		debris_x = random.uniform(self.satellite.model_x - (SCREEN_WIDTH/2), self.satellite.model_x + (SCREEN_WIDTH/2))
+		debris_y = random.uniform(self.satellite.model_y-(SCREEN_WIDTH/2),self.satellite.model_y + (SCREEN_WIDTH/2))
+		debris = Classes.debris(debris_x, debris_y, [0,0],"Images/debris.png", [0, 705*10**3, 1])
 		#debris = Classes.debris(300,500,[0,0], "Images/debris.png")
 
 
@@ -88,14 +90,18 @@ class MyGame(arcade.Window):
 		elif symbol == arcade.key.M:
 
 			debris_vel = 0.15
-			new_debris = Classes.debris(random.uniform(self.canvas_info[0] - 300, self.canvas_info[0] + 300), random.uniform(self.canvas_info[1] - 300, self.canvas_info[1] + 300), [math.cos(random.uniform(-1*math.pi,math.pi))*debris_vel, math.sin(random.uniform(-1*math.pi,math.pi))*debris_vel], "Images/debris.png",  self.canvas_info)
+			debris_x = random.uniform(self.canvas_info[0] - 300, self.canvas_info[0] + 300)
+			debris_y = random.uniform(self.canvas_info[1] - 300, self.canvas_info[1] + 300)
+			debris_vel_vec = [math.cos(random.uniform(-1*math.pi,math.pi))*debris_vel, math.sin(random.uniform(-1*math.pi,math.pi))*debris_vel]
+			new_debris = Classes.debris(debris_x, debris_y, debris_vel_vec, "Images/debris.png",  self.canvas_info)
 			self.debris_list.append(new_debris)
 			self.sprites_list.append(new_debris)
 
 			pro_angle_1 = functions.get_net_angle_immediate(0.4, self.satellite, new_debris)
 
 			projetile_vel = 0.4
-			new_projectile = Classes.projectile(0.5, self.satellite.model_x, self.satellite.model_y,[math.cos(math.radians(pro_angle_1))*projetile_vel, math.sin(math.radians(pro_angle_1))*projetile_vel], self.canvas_info)
+			projetile_vel_vec = [math.cos(math.radians(pro_angle_1))*projetile_vel, math.sin(math.radians(pro_angle_1))*projetile_vel]
+			new_projectile = Classes.projectile(0.5, self.satellite.model_x, self.satellite.model_y, projetile_vel_vec, self.canvas_info)
 			self.projectile_list.append(new_projectile)
 			self.sprites_list.append(new_projectile)
 
@@ -105,7 +111,10 @@ class MyGame(arcade.Window):
 			self.right = 1
 		elif symbol == arcade.key.N:
 			debris_vel = 0.3
-			new_debris = Classes.debris(random.uniform(self.canvas_info[0] - 300, self.canvas_info[0] + 300), random.uniform(self.canvas_info[1] - 300, self.canvas_info[1] + 300), [math.cos(random.uniform(-1*math.pi,math.pi))*debris_vel, math.sin(random.uniform(-1*math.pi,math.pi))*debris_vel], "Images/debris.png", self.canvas_info)
+			debris_x = random.uniform(self.canvas_info[0] - 300, self.canvas_info[0] + 300)
+			debris_y = random.uniform(self.canvas_info[1] - 300, self.canvas_info[1] + 300)
+			debris_vel = [math.cos(random.uniform(-1*math.pi,math.pi))*debris_vel, math.sin(random.uniform(-1*math.pi,math.pi))*debris_vel]
+			new_debris = Classes.debris(debris_x, debris_y, debris_vel, "Images/debris.png", self.canvas_info)
 			self.debris_list.append(new_debris)
 			self.sprites_list.append(new_debris)
 			self.satellite.give_objective(new_debris)
