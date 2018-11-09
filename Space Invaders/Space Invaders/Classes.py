@@ -64,6 +64,12 @@ class projectile(arcade.Sprite):
 
 		self.center_x, self.center_y = functions.get_canvas_pos(self.model_x, self.model_y, canvas_info)
 
+class earth(arcade.Sprite):
+	def __init__(self, filename, scale):
+		super().__init__(filename,scale)
+
+		self.center_x = 50
+		self.center_y = 50
 
 
 

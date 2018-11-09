@@ -29,6 +29,7 @@ class MyGame(arcade.Window):
 		self.debris_list = None
 		self.projectile_list = None
 		self.netted_debris_list = None
+		self.earth = None
 		self.satellite = None
 
 		self.right = 0
@@ -58,6 +59,10 @@ class MyGame(arcade.Window):
 		#Generate satellite sprite
 		self.satellite = Classes.satellite(0, 705*10**3, "Images/satellite.png",0.2)
 		self.sprites_list.append(self.satellite)
+		
+		#Generate earth
+		self.earth = Classes.earth("Images/earth.png",0.5)
+		self.sprites_list.append(self.earth)
 
 
 		#Generate debris sprite
@@ -73,12 +78,6 @@ class MyGame(arcade.Window):
 		self.satellite.update_angle(self.debris_list[0])
 		
 
-
-		
-
-
-
-		
 
 	def on_key_press(self, symbol, modifiers):
 		if symbol == arcade.key.ENTER:
@@ -187,7 +186,6 @@ class MyGame(arcade.Window):
 			shot = self.satellite.get_projectile()
 			self.projectile_list.append(shot)
 			self.sprites_list.append(shot)
-
 			self.satellite.time_to_shoot = float("inf")
 
 
@@ -216,6 +214,7 @@ class MyGame(arcade.Window):
 					self.netted_debris_list.append(Classes.netted_debris(projectile,debris))
 					self.projectile_list.remove(projectile)
 					self.debris_list.remove(debris)
+
 					
 					
 					
@@ -224,9 +223,6 @@ class MyGame(arcade.Window):
 def main():
 	game = MyGame(SCREEN_WIDTH,SCREEN_HEIGHT)
 	game.setup()
-
-
-
 
 	arcade.run()
 
