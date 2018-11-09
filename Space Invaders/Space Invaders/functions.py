@@ -30,16 +30,16 @@ def metric_to_canvas(kms):
 	return kms*scaling_factor
 
 def get_net_angle_immediate(abs_vel_net, satellite, debris):
-	pos_x_satalite = satellite.center_x
-	pos_y_satalite = satellite.center_y
+	pos_x_satalite = satellite.model_x
+	pos_y_satalite = satellite.model_y
 	vel_x_debris = debris.vel_vector[0]
 	vel_y_debris = debris.vel_vector[1]
-	pos_x_debris = debris.center_x
-	pos_y_debris = debris.center_y
+	pos_x_debris = debris.model_x
+	pos_y_debris = debris.model_y
 
     #First we move the satalite to the center of coordinate system
 	pos_x_debris_center = pos_x_debris - pos_x_satalite
-	pos_y_debris_center = pos_y_debris - pos_x_satalite
+	pos_y_debris_center = pos_y_debris - pos_y_satalite
     
     # Now we rotate the system such that the debris is traveling parallel to the y axis
 	abs_vel_debris = math.sqrt(vel_x_debris**2 + vel_y_debris**2)
@@ -87,7 +87,7 @@ def get_time_to_shoot(abs_vel_net, satellite, debris):
     
     # Now we rotate the system such that the debris is traveling parallel to the y axis
 	abs_vel_debris = math.sqrt(vel_x_debris**2 + vel_y_debris**2)
-	angle_before_rotate = vec_to_angle_2d(vel_x_debris,vel_y_debris)
+	angle_before_rotate = vec_to_angle_2d(vel_x_debris, vel_y_debris)
 	degrees_of_rotation = 0
 
 	if angle_before_rotate >= 0:
@@ -126,3 +126,12 @@ def get_time_to_shoot(abs_vel_net, satellite, debris):
 		return -1 # the time to wait is negative which means we do not have time.
 	
 	return t_wait/100, aim
+
+	
+
+def get_canvas_pos(x, y, canvas_info):
+	ref_x = canvas_info[0]
+	ref_y = canvas_info[1]
+	zoom_mult = canvas_info[2]
+
+	return (x*zoom_mult - ref_x*zoom_mult + 300), (y*zoom_mult - ref_y*zoom_mult + 300)

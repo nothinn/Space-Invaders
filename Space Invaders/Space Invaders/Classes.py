@@ -15,15 +15,12 @@ class netted_debris():
 		new_vel_vector[1] += projectile.vel_vector[1]
 
 
-
-
-
 		projectile.vel_vector = new_vel_vector
 		debris.vel_vector = new_vel_vector
 
-	def update(self, delta_time):
-		self.projectile.update(delta_time)
-		self.debris.update(delta_time)
+	def update(self, delta_time, canvas_info):
+		self.projectile.update(delta_time, canvas_info)
+		self.debris.update(delta_time, canvas_info)
 
 	def kill(self):
 		self.debris.kill()
@@ -33,42 +30,50 @@ class netted_debris():
 
 class debris(arcade.Sprite):
 
-	def __init__(self, x, y, vel_vector,path):
+	def __init__(self, x, y, vel_vector, path, canvas_info, filename = "Images/debris.png"):
 		super().__init__(filename=path,scale = 0.2)
-		self.center_x = x
-		self.center_y = y
+
+		self.model_x = x #model is the postion in the background model
+		self.model_y = y
+		self.center_x, self.center_y = functions.get_canvas_pos(x, y, canvas_info) #center is the postion on canvas
 		self.vel_vector = vel_vector
 
-	def update(self, delta_time):
-		self.center_x += self.vel_vector[0]*delta_time
-		self.center_y += self.vel_vector[1]*delta_time
+	def update(self, delta_time, canvas_info):
+		self.model_x += self.vel_vector[0]*delta_time
+		self.model_y += self.vel_vector[1]*delta_time
+
+		self.center_x, self.center_y = functions.get_canvas_pos(self.model_x, self.model_y, canvas_info)
+
 
 
 class projectile(arcade.Sprite):
-	def __init__(self, scale, x, y, vel_vector, filename = "Images/net.png"):
+	def __init__(self, scale, x, y, vel_vector, canvas_info, filename = "Images/net.png"):
 		super().__init__(filename, scale)
 
-		self.center_x = x
-		self.center_y = y
+		self.model_x = x #model is the postion in the background model
+		self.model_y = y
+		self.center_x, self.center_y = functions.get_canvas_pos(x, y, canvas_info) #center is the postion on canvas
 		self.vel_vector = vel_vector
 
 		self.angle = functions.vec_to_angle_2d(vel_vector[0],vel_vector[1]) 
 
 
-	def update(self, delta_time):
-		self.center_x += self.vel_vector[0]*delta_time
-		self.center_y += self.vel_vector[1]*delta_time
+	def update(self, delta_time, canvas_info):
+		self.model_x += self.vel_vector[0]*delta_time
+		self.model_y += self.vel_vector[1]*delta_time
 
-
+		self.center_x, self.center_y = functions.get_canvas_pos(self.model_x, self.model_y, canvas_info)
 
 
 
 
 class satellite(arcade.Sprite):
-	def __init__(self, filename, scale):
+	def __init__(self, x, y, filename, scale):
 		super().__init__(filename,scale)
 
-		self.center_x = 300
+		self.model_x = x #model is the postion in the background model
+		self.model_y = y
+		self.center_x = 300 #center is the postion on canvas
 		self.center_y = 300
 		self.angle = 0
 
@@ -94,7 +99,6 @@ class satellite(arcade.Sprite):
 		self.angle += delta_time * direction*50
 
 
-	def update(self, delta_time):
 		if(self.has_objective):
 			#Move the satellite towards the right angle
 			if self.angle != self.angle_goal:
@@ -124,7 +128,7 @@ class satellite(arcade.Sprite):
 	def give_objective(self, debris):
 		self.has_objective = True
 
-		wait_time, aim_angle = functions.get_time_to_shoot(1, self, debris)
+		wait_time, aim_angle = functions.get_time_to_shoot(1.0, self, debris)
 
 		#Insert calculation for finding the angle the satellite should have
 		self.angle_goal = aim_angle

@@ -10,6 +10,7 @@ import math
 
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 600
+TIME_MULTIPLIER = 100
 
 
 
@@ -33,6 +34,14 @@ class MyGame(arcade.Window):
 		self.right = 0
 		self.left = 0
 		self.total_time = 0.0
+		
+		# for canvas center and zoom factor - relative to model coordinate system
+
+		self.canvas_info = [0, 0, 1]
+
+		#self.canvas_center_x = 0 # equal to satalite real in (set update)
+		#self.canvas_center_y = 0
+		#self.zoom_mult = 1 
 
 		self.display_coordinates = False
 
@@ -47,12 +56,14 @@ class MyGame(arcade.Window):
 
 
 		#Generate satellite sprite
-		self.satellite = Classes.satellite("Images/satellite.png",0.2)
+		self.satellite = Classes.satellite(0, 705*10**3, "Images/satellite.png",0.2)
 		self.sprites_list.append(self.satellite)
 
 
 		#Generate debris sprite
-		debris = Classes.debris(random.uniform(0,600),random.uniform(0,600),[0,0], "Images/debris.png")
+		debris_x = random.uniform(self.satellite.model_x - (SCREEN_WIDTH/2), self.satellite.model_x + (SCREEN_WIDTH/2))
+		debris_y = random.uniform(self.satellite.model_y-(SCREEN_WIDTH/2),self.satellite.model_y + (SCREEN_WIDTH/2))
+		debris = Classes.debris(debris_x, debris_y, [0,0],"Images/debris.png", [0, 705*10**3, 1])
 		#debris = Classes.debris(300,500,[0,0], "Images/debris.png")
 
 
@@ -73,7 +84,7 @@ class MyGame(arcade.Window):
 		if symbol == arcade.key.ENTER:
 
 			vec_x, vec_y = functions.angle_to_vec_2d(self.satellite.angle)
-			projectile = Classes.projectile(0.5,self.satellite.center_x,self.satellite.center_y,[vec_x,vec_y])
+			projectile = Classes.projectile(0.5,self.satellite.center_x,self.satellite.center_y,[vec_x,vec_y], self.canvas_info)
 
 			self.projectile_list.append(projectile)
 			self.sprites_list.append(projectile)
@@ -81,14 +92,18 @@ class MyGame(arcade.Window):
 		elif symbol == arcade.key.M:
 
 			debris_vel = 0.15
-			new_debris = Classes.debris(random.uniform(0,600), random.uniform(0,600), [math.cos(random.uniform(-1*math.pi,math.pi))*debris_vel, math.sin(random.uniform(-1*math.pi,math.pi))*debris_vel], "Images/debris.png")
+			debris_x = random.uniform(self.canvas_info[0] - 300, self.canvas_info[0] + 300)
+			debris_y = random.uniform(self.canvas_info[1] - 300, self.canvas_info[1] + 300)
+			debris_vel_vec = [math.cos(random.uniform(-1*math.pi,math.pi))*debris_vel, math.sin(random.uniform(-1*math.pi,math.pi))*debris_vel]
+			new_debris = Classes.debris(debris_x, debris_y, debris_vel_vec, "Images/debris.png",  self.canvas_info)
 			self.debris_list.append(new_debris)
 			self.sprites_list.append(new_debris)
 
 			pro_angle_1 = functions.get_net_angle_immediate(0.4, self.satellite, new_debris)
 
 			projetile_vel = 0.4
-			new_projectile = Classes.projectile(0.5, self.satellite.center_x, self.satellite.center_y,[math.cos(math.radians(pro_angle_1))*projetile_vel, math.sin(math.radians(pro_angle_1))*projetile_vel])
+			projetile_vel_vec = [math.cos(math.radians(pro_angle_1))*projetile_vel, math.sin(math.radians(pro_angle_1))*projetile_vel]
+			new_projectile = Classes.projectile(0.5, self.satellite.model_x, self.satellite.model_y, projetile_vel_vec, self.canvas_info)
 			self.projectile_list.append(new_projectile)
 			self.sprites_list.append(new_projectile)
 
@@ -98,7 +113,10 @@ class MyGame(arcade.Window):
 			self.right = 1
 		elif symbol == arcade.key.N:
 			debris_vel = 0.3
-			new_debris = Classes.debris(random.uniform(0,600), random.uniform(0,600), [math.cos(random.uniform(-1*math.pi,math.pi))*debris_vel, math.sin(random.uniform(-1*math.pi,math.pi))*debris_vel], "Images/debris.png")
+			debris_x = random.uniform(self.canvas_info[0] - 300, self.canvas_info[0] + 300)
+			debris_y = random.uniform(self.canvas_info[1] - 300, self.canvas_info[1] + 300)
+			debris_vel = [math.cos(random.uniform(-1*math.pi,math.pi))*debris_vel, math.sin(random.uniform(-1*math.pi,math.pi))*debris_vel]
+			new_debris = Classes.debris(debris_x, debris_y, debris_vel, "Images/debris.png", self.canvas_info)
 			self.debris_list.append(new_debris)
 			self.sprites_list.append(new_debris)
 			self.satellite.give_objective(new_debris)
@@ -108,6 +126,11 @@ class MyGame(arcade.Window):
 				self.display_coordinates = False
 			else:
 				self.display_coordinates = True
+		elif symbol == arcade.key.I: #zoom in
+			self.canvas_info[2] *= 2
+
+		elif symbol == arcade.key.O: #zoom out
+			self.canvas_info[2] *= 0.5
 
 	def on_key_release(self, symbol, modifiers):
 		if symbol == arcade.key.LEFT:
@@ -155,9 +178,11 @@ class MyGame(arcade.Window):
 
 	def update(self, delta_time):
 		self.total_time += delta_time
+		self.canvas_info[0] = self.satellite.model_x
+		self.canvas_info[1] = self.satellite.model_y
 		
 
-		self.satellite.update(delta_time)
+		
 		if self.satellite.time_to_shoot <= 0:
 			shot = self.satellite.get_projectile()
 			self.projectile_list.append(shot)
@@ -167,12 +192,12 @@ class MyGame(arcade.Window):
 
 
 		for member in self.projectile_list:
-			member.update(delta_time*100)
+			member.update(delta_time*TIME_MULTIPLIER, self.canvas_info)
 
 		for member in self.debris_list:
-			member.update(delta_time*100)
+			member.update(delta_time*TIME_MULTIPLIER, self.canvas_info)
 		for member in self.netted_debris_list:
-			member.update(delta_time*100)
+			member.update(delta_time*TIME_MULTIPLIER, self.canvas_info)
 			if abs(member.debris.center_x) > 1000 or abs(member.debris.center_y) > 1000:
 				member.kill()
 				print("Killed netted debris")
