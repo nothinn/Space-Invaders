@@ -1,5 +1,10 @@
 import math
 
+# 2000kms is the distance of the further debris 
+# since our satelite is in the middle of the screen [300,300]
+# 2000km = 300 pixels
+scaling_factor = 3 / 20 # 0.15
+
 def collision(projectile, debris):
 
 	if abs(projectile.center_x - debris.center_x) < 5:
@@ -19,6 +24,10 @@ def angle_to_vec_2d(angle):
 	x = math.cos(math.radians(angle))
 	y = math.sin(math.radians(angle))
 	return x, y
+
+def metric_to_canvas(kms):
+	# currently not used anywhere
+	return kms*scaling_factor
 
 def get_net_angle_immediate(abs_vel_net, satellite, debris):
 	pos_x_satalite = satellite.center_x
