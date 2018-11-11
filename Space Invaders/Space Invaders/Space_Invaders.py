@@ -8,9 +8,19 @@ import Classes
 import math
 
 
+
+
+
+
+
+
+
+
+
+
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 600
-TIME_MULTIPLIER = 100
+TIME_MULTIPLIER = 200
 
 
 
@@ -78,6 +88,12 @@ class MyGame(arcade.Window):
 		self.satellite.update_angle(self.debris_list[0])
 		
 
+
+		
+
+
+
+		
 
 	def on_key_press(self, symbol, modifiers):
 		if symbol == arcade.key.ENTER:
@@ -169,14 +185,14 @@ class MyGame(arcade.Window):
 
 		#Draw coordinates for nets & debris
 		if(self.display_coordinates):
-			for x in self.sprites_list:
+			for x in self.debris_list:
 				if(x != self.satellite):
-					arcade.draw_text("    [{}]\n    [{}]".format(round(x.center_x,3), round(x.center_y,3)), x.center_x, x.center_y, arcade.color.BLACK, 8)
+					arcade.draw_text("    [{}]\n    [{}]".format(round(x.center_x,3), round(x.center_y,3)), 200, 100, arcade.color.BLACK, 8)
 
 
 
 	def update(self, delta_time):
-		self.total_time += delta_time
+		self.total_time += delta_time * TIME_MULTIPLIER
 		self.canvas_info[0] = self.satellite.model_x
 		self.canvas_info[1] = self.satellite.model_y
 		
@@ -221,6 +237,8 @@ class MyGame(arcade.Window):
 
 
 def main():
+
+
 	game = MyGame(SCREEN_WIDTH,SCREEN_HEIGHT)
 	game.setup()
 

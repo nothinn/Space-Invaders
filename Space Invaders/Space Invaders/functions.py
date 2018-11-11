@@ -1,5 +1,18 @@
 import math
 
+
+import numpy as np
+
+from astropy import units as u
+
+from poliastro.bodies import Earth, Mars, Sun
+from poliastro.twobody import Orbit
+
+from poliastro.maneuver import Maneuver
+
+from poliastro.plotting import plot
+
+
 # 2000kms is the distance of the further debris 
 # since our satelite is in the middle of the screen [300,300]
 # 2000km = 300 pixels
@@ -7,10 +20,9 @@ scaling_factor = 3 / 20 # 0.15
 
 def collision(projectile, debris):
 
-	if abs(projectile.center_x - debris.center_x) < 5:
-		if abs(projectile.center_y - debris.center_y) < 5:
+	if abs(projectile.center_x - debris.center_x) < 10:
+		if abs(projectile.center_y - debris.center_y) < 10:
 			return True
-
 	return False
 
 def vec_to_angle_2d(x,y):
@@ -19,6 +31,39 @@ def vec_to_angle_2d(x,y):
 	degrees = math.degrees(radians)
 	
 	return degrees
+
+def orbit_to_position(orbit):
+	a = orbit.state.a
+	e = orbit.state.ecc
+	theta = orbit.state.nu / u.rad
+
+
+
+	#Equation from https://en.wikipedia.org/wiki/Kepler_orbit#Johannes_Kepler
+	#The radius equation
+	upper_part = a*(1-e*e)
+	lower_part = 1+e*math.cos(theta )
+
+	distance = upper_part/lower_part
+
+	x,y = angle_to_vec_2d(math.degrees(theta))
+
+	x *= distance
+	y *= distance
+
+	
+	#print("x:{0:08.2f} y:{1:08.2f}".format(x,y))
+
+	return x.value,y.value
+
+def orbit_impulse(orbit, vector):
+	
+
+	dv = vector * u.m / u.s
+	man = Maneuver.impulse(dv)
+
+	orbit = orbit.apply_maneuver(man)
+
 
 def angle_to_vec_2d(angle):
 	x = math.cos(math.radians(angle))
