@@ -35,6 +35,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Images\debris.png" />
+    <Content Include="Images\earth.png" />
     <Content Include="Images\net.png" />
     <Content Include="Images\satellite.png" />
   </ItemGroup>

@@ -3,6 +3,14 @@ import functions
 
 import math
 
+import numpy as np
+
+from astropy import units as u
+
+from poliastro.bodies import Earth, Mars, Sun
+from poliastro.twobody import Orbit
+
+from poliastro.examples import iss
 
 class netted_debris():
 	def __init__(self, projectile, debris):
@@ -38,11 +46,29 @@ class debris(arcade.Sprite):
 		self.center_x, self.center_y = functions.get_canvas_pos(x, y, canvas_info) #center is the postion on canvas
 		self.vel_vector = vel_vector
 
-	def update(self, delta_time, canvas_info):
-		self.model_x += self.vel_vector[0]*delta_time
-		self.model_y += self.vel_vector[1]*delta_time
 
+		#Create an orbit object, which a debris is.
+		r = [-6045, -3490, 2500] * u.km
+		v = [-3.457, 6.618, 2.533] * u.km / u.s
+
+		self.ss = Orbit.from_vectors(Earth, r, v)
+
+		self.ss = iss
+
+
+
+	def update(self, delta_time, canvas_info):
+		#self.model_x += self.vel_vector[0]*delta_time
+		#self.model_y += self.vel_vector[1]*delta_time
+
+
+		#We move the debris a certain time.
+		self.ss = self.ss.propagate(delta_time * u.s)
+		self.model_x, self.model_y = functions.orbit_to_position(self.ss)
+		
 		self.center_x, self.center_y = functions.get_canvas_pos(self.model_x, self.model_y, canvas_info)
+
+
 
 
 
@@ -63,6 +89,7 @@ class projectile(arcade.Sprite):
 		self.model_y += self.vel_vector[1]*delta_time
 
 		self.center_x, self.center_y = functions.get_canvas_pos(self.model_x, self.model_y, canvas_info)
+
 
 class earth(arcade.Sprite):
 	def __init__(self, filename, scale):
