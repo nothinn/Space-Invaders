@@ -110,15 +110,15 @@ class MyGame(arcade.Window):
 			self.left = 1
 		elif symbol == arcade.key.RIGHT:
 			self.right = 1
-		elif symbol == arcade.key.N:
-			debris_vel = 0.3
-			debris_x = random.uniform(self.canvas_info[0] - 300, self.canvas_info[0] + 300)
-			debris_y = random.uniform(self.canvas_info[1] - 300, self.canvas_info[1] + 300)
-			debris_vel = [math.cos(random.uniform(-1*math.pi,math.pi))*debris_vel, math.sin(random.uniform(-1*math.pi,math.pi))*debris_vel]
-			new_debris = Classes.debris(debris_x, debris_y, debris_vel, "Images/debris.png", self.canvas_info)
-			self.debris_list.append(new_debris)
-			self.sprites_list.append(new_debris)
-			self.satellite.give_objective(new_debris)
+		#elif symbol == arcade.key.N:
+		#	debris_vel = 0.3
+		#	debris_x = random.uniform(self.canvas_info[0] - 300, self.canvas_info[0] + 300)
+		#	debris_y = random.uniform(self.canvas_info[1] - 300, self.canvas_info[1] + 300)
+		#	debris_vel = [math.cos(random.uniform(-1*math.pi,math.pi))*debris_vel, math.sin(random.uniform(-1*math.pi,math.pi))*debris_vel]
+		#	new_debris = Classes.debris(debris_x, debris_y, debris_vel, "Images/debris.png", self.canvas_info)
+		#	self.debris_list.append(new_debris)
+		#	self.sprites_list.append(new_debris)
+		#	self.satellite.give_objective(new_debris)
 
 		elif symbol == arcade.key.D:
 			if(self.display_coordinates):
@@ -200,7 +200,7 @@ class MyGame(arcade.Window):
 				member.kill()
 				print("Killed netted debris")
 				self.netted_debris_list.remove(member)
-
+		self.earth.update(delta_time*TIME_MULTIPLIER, self.canvas_info)
 
 	
 
