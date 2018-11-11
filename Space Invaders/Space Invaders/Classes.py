@@ -68,8 +68,13 @@ class earth(arcade.Sprite):
 	def __init__(self, filename, scale):
 		super().__init__(filename,scale)
 
-		self.center_x = 50
-		self.center_y = 50
+		self.model_x = 0 
+		self.model_y = 0
+	
+	def update(self, delta_time, canvas_info):
+		self.center_y, self.center_y = functions.get_canvas_pos(self.model_x, self.model_y, canvas_info)
+
+
 
 
 
