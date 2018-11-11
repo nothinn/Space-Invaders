@@ -72,7 +72,7 @@ class earth(arcade.Sprite):
 		self.model_y = 0
 	
 	def update(self, delta_time, canvas_info):
-		self.center_y, self.center_y = functions.get_canvas_pos(self.model_x, self.model_y, canvas_info)
+		self.center_x, self.center_y = functions.get_canvas_pos(self.model_x, self.model_y, canvas_info)
 
 
 
