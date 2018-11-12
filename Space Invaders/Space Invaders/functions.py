@@ -51,10 +51,10 @@ def orbit_to_position(orbit):
 	x *= distance
 	y *= distance
 
-	
 	#print("x:{0:08.2f} y:{1:08.2f}".format(x,y))
 
-	return x.value,y.value
+	#Multiply by 1000 to get it in meters
+	return x.value * 1000,y.value*1000
 
 def orbit_impulse(orbit, vector):
 	
