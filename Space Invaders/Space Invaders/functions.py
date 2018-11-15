@@ -202,3 +202,27 @@ def get_random_circular_orbit():
 	vel = [math.cos(vel_angle) * cirular_abs_vel, math.sin(vel_angle) * cirular_abs_vel, 0]
 
 	return r, vel
+
+def get_random_ellipse_orbit():
+	r_length = random.uniform(160.0, 2000.0) # km
+	angle = random.uniform(0.0, math.pi)
+
+	r = [math.cos(angle)*r_length, math.sin(angle)*r_length, 0.0]
+
+	G = 6.67408*10**-11 #Gravitational constant m^3*kg^-1*s^-2
+	M_e = 5.9722*10**24 #mass of earth kg 
+	cirular_abs_vel = math.sqrt((G*M_e) / (r_length*10**3))
+
+
+	ran_add_angle = random.uniform(-0.5, 0.5)
+	ran_seed = random.uniform(-1.0, 1.0)
+
+	if(ran_seed < 0):
+		vel_angle = angle + (math.pi * -1) + ran_add_angle
+
+	else:
+		vel_angle = angle + math.pi + ran_add_angle
+
+	vel = [math.cos(vel_angle) * cirular_abs_vel, math.sin(vel_angle) * cirular_abs_vel, 0]
+
+	return r, vel
