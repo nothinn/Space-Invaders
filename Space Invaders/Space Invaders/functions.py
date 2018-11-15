@@ -37,8 +37,6 @@ def orbit_to_position(orbit):
 	e = orbit.state.ecc
 	theta = orbit.state.nu / u.rad
 
-
-
 	#Equation from https://en.wikipedia.org/wiki/Kepler_orbit#Johannes_Kepler
 	#The radius equation
 	upper_part = a*(1-e*e)
@@ -54,15 +52,14 @@ def orbit_to_position(orbit):
 	#print("x:{0:08.2f} y:{1:08.2f}".format(x,y))
 
 	#Multiply by 1000 to get it in meters
-	return x.value * 1000,y.value*1000
+	return x.value * 1000, y.value*1000
 
 def orbit_impulse(orbit, vector):
 	
-
 	dv = vector * u.m / u.s
 	man = Maneuver.impulse(dv)
 
-	orbit = orbit.apply_maneuver(man)
+	return orbit.apply_maneuver(man)
 
 
 def angle_to_vec_2d(angle):
