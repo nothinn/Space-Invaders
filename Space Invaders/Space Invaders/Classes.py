@@ -53,7 +53,15 @@ class debris(arcade.Sprite):
 
 		self.ss = Orbit.from_vectors(Earth, r, v)
 
+
+
+		print(functions.get_vector_orbit(self.ss))
+
+
+
 	def give_impulse(self):
+		
+		print(functions.get_vector_orbit(self.ss))
 		self.ss = functions.orbit_impulse(self.ss,[100,0,0])
 
 

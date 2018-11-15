@@ -33,26 +33,34 @@ def vec_to_angle_2d(x,y):
 	return degrees
 
 def orbit_to_position(orbit):
-	a = orbit.state.a
-	e = orbit.state.ecc
-	theta = orbit.state.nu / u.rad
+	#a = orbit.state.a
+	#e = orbit.state.ecc
+	#theta = orbit.state.nu / u.rad
 
 	#Equation from https://en.wikipedia.org/wiki/Kepler_orbit#Johannes_Kepler
 	#The radius equation
-	upper_part = a*(1-e*e)
-	lower_part = 1+e*math.cos(theta )
+	#upper_part = a*(1-e*e)
+	#lower_part = 1+e*math.cos(theta )
 
-	distance = upper_part/lower_part
+	#distance = upper_part/lower_part
 
-	x,y = angle_to_vec_2d(math.degrees(theta))
+	#x,y = angle_to_vec_2d(math.degrees(theta))
 
-	x *= distance
-	y *= distance
+	#x *= distance
+	#y *= distance
 
 	#print("x:{0:08.2f} y:{1:08.2f}".format(x,y))
 
 	#Multiply by 1000 to get it in meters
+
+	x = orbit.r[0]
+	y = orbit.r[1]
+
 	return x.value * 1000, y.value*1000
+
+def get_vector_orbit(orbit_element):
+	return orbit_element.state.v
+	
 
 def orbit_impulse(orbit, vector):
 	
