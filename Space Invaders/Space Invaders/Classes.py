@@ -48,13 +48,13 @@ class debris(arcade.Sprite):
 
 
 		#Create an orbit object, which a debris is.
-		r = [-6045, -3490, 2500] * u.km
-		v = [-3.457, 6.618, 2.533] * u.km / u.s
+		r = [-6045, -3490, 0] * u.km
+		v = [-3.457, 6.618, 0] * u.km / u.s
 
 		self.ss = Orbit.from_vectors(Earth, r, v)
 
-		self.ss = iss
-
+	def give_impulse(self):
+		self.ss = functions.orbit_impulse(self.ss,[100,0,0])
 
 
 	def update(self, delta_time, canvas_info):
@@ -67,8 +67,6 @@ class debris(arcade.Sprite):
 		self.model_x, self.model_y = functions.orbit_to_position(self.ss)
 		
 		self.center_x, self.center_y = functions.get_canvas_pos(self.model_x, self.model_y, canvas_info)
-
-
 
 
 

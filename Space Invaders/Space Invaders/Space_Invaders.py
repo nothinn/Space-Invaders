@@ -20,7 +20,7 @@ import math
 
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 600
-TIME_MULTIPLIER = 200
+TIME_MULTIPLIER = 1000
 
 
 
@@ -147,6 +147,11 @@ class MyGame(arcade.Window):
 		elif symbol == arcade.key.O: #zoom out
 			self.canvas_info[2] *= 0.5
 
+		elif symbol == arcade.key.P: #Apply impulse
+			debris = self.debris_list[0]
+			debris.give_impulse()
+
+
 	def on_key_release(self, symbol, modifiers):
 		if symbol == arcade.key.LEFT:
 			self.left = 0
@@ -168,6 +173,7 @@ class MyGame(arcade.Window):
 		#Write text on the screen in the top left corner
 		arcade.draw_text("Number of debris: {}\nNumber of nets: {}\nNumber of netted debris: {}\nTime: {}".format(len(self.debris_list),len(self.projectile_list),len(self.netted_debris_list),(time_list)),
                          10, SCREEN_HEIGHT -10, arcade.color.BLACK, 12, anchor_x="left", anchor_y="top")
+
 
 		
 		#Draw scale in bottom left corner
