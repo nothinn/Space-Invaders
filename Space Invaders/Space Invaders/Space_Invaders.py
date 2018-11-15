@@ -147,6 +147,13 @@ class MyGame(arcade.Window):
 		elif symbol == arcade.key.O: #zoom out
 			self.canvas_info[2] *= 0.5
 
+		elif symbol == arcade.key.C:
+			new_debris = Classes.debris(0, 0, [0,0], "Images/debris.png", self.canvas_info)
+			self.debris_list.append(new_debris)
+			self.sprites_list.append(new_debris)
+
+
+
 	def on_key_release(self, symbol, modifiers):
 		if symbol == arcade.key.LEFT:
 			self.left = 0

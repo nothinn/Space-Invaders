@@ -48,12 +48,12 @@ class debris(arcade.Sprite):
 
 
 		#Create an orbit object, which a debris is.
-		r = [-6045, -3490, 2500] * u.km
-		v = [-3.457, 6.618, 2.533] * u.km / u.s
+		r = [-6045, -3490, 2500]
+		v = [-3457, 6618, 2533]
+		rtest, vtest = functions.get_random_circular_orbit()
+		self.ss = Orbit.from_vectors(Earth, rtest * u.km, vtest * u.m / u.s)
 
-		self.ss = Orbit.from_vectors(Earth, r, v)
-
-		self.ss = iss
+		#self.ss = iss
 
 
 
