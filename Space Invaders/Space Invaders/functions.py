@@ -183,7 +183,8 @@ def get_canvas_pos(x, y, canvas_info):
 
 
 def get_random_circular_orbit():
-	r_length = random.uniform(160.0, 2000.0) # km
+	Er = 6371 # earth radius in km
+	r_length = random.uniform(160.0 + Er, 2000.0 + Er) # km
 	angle = random.uniform(0.0, math.pi)
 
 	r = [math.cos(angle)*r_length, math.sin(angle)*r_length, 0.0]
@@ -195,16 +196,17 @@ def get_random_circular_orbit():
 	ran_seed = random.uniform(-1.0, 1.0)
 
 	if(ran_seed < 0):
-		vel_angle = angle + math.pi * -1
+		vel_angle = angle + (math.pi * -1)/2
 	else:
-		vel_angle = angle + math.pi
+		vel_angle = angle + math.pi/2
 
 	vel = [math.cos(vel_angle) * cirular_abs_vel, math.sin(vel_angle) * cirular_abs_vel, 0]
 
 	return r, vel
 
 def get_random_ellipse_orbit():
-	r_length = random.uniform(160.0, 2000.0) # km
+	Er = 6371 # earth radius in km
+	r_length = random.uniform(160.0 + Er, 2000.0 + Er) # km
 	angle = random.uniform(0.0, math.pi)
 
 	r = [math.cos(angle)*r_length, math.sin(angle)*r_length, 0.0]
@@ -218,10 +220,10 @@ def get_random_ellipse_orbit():
 	ran_seed = random.uniform(-1.0, 1.0)
 
 	if(ran_seed < 0):
-		vel_angle = angle + (math.pi * -1) + ran_add_angle
+		vel_angle = angle + ((math.pi/2) * -1) + ran_add_angle
 
 	else:
-		vel_angle = angle + math.pi + ran_add_angle
+		vel_angle = angle + (math.pi/2) + ran_add_angle
 
 	vel = [math.cos(vel_angle) * cirular_abs_vel, math.sin(vel_angle) * cirular_abs_vel, 0]
 
