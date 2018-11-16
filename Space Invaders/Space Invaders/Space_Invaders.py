@@ -181,16 +181,34 @@ class MyGame(arcade.Window):
 		arcade.draw_text("Number of debris: {}\nNumber of nets: {}\nNumber of netted debris: {}\nTime: {}".format(len(self.debris_list),len(self.projectile_list),len(self.netted_debris_list),(time_list)),
                          10, SCREEN_HEIGHT -10, arcade.color.BLACK, 12, anchor_x="left", anchor_y="top")
 
+		
+		#Update scale when zooming
+		middle_scale = 75/self.canvas_info[2]
+		right_scale = 150/self.canvas_info[2]
+		str_left_scale = 0
+		str_middle_scale = 0
+		str_right_scale = 0
 
+		if(self.canvas_info[2]):
+			if(middle_scale >= 1000):
+				middle_scale = middle_scale/1000
+				right_scale = right_scale/1000
+				str_left_scale = "0" + "km"
+				str_middle_scale = f"{middle_scale}" + "km"
+				str_right_scale = f"{right_scale}" + "km"
+			else:
+				str_left_scale = "0" + "m"
+				str_middle_scale = f"{middle_scale}" + "m"
+				str_right_scale = f"{right_scale}" + "m"
 		
 		#Draw scale in bottom left corner
 		arcade.draw_line(10, 10, 160, 10, arcade.color.BLACK, 1) # line
 		arcade.draw_line(10, 10, 10, 16, arcade.color.BLACK, 1) # left dash
 		arcade.draw_line(85, 10, 85, 16, arcade.color.BLACK, 1) # middle dash
 		arcade.draw_line(160, 10, 160, 16, arcade.color.BLACK, 1) # right dash
-		arcade.draw_text("0", 8, 18, arcade.color.BLACK, 8)
-		arcade.draw_text("500", 76, 18, arcade.color.BLACK, 8)
-		arcade.draw_text("1000", 148, 18, arcade.color.BLACK, 8)
+		arcade.draw_text(str_left_scale, 8, 18, arcade.color.BLACK, 8)
+		arcade.draw_text(str_middle_scale, 76, 18, arcade.color.BLACK, 8)
+		arcade.draw_text(str_right_scale, 148, 18, arcade.color.BLACK, 8)
 		
 
 		#Draw all sprites
