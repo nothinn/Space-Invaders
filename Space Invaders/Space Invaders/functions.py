@@ -1,5 +1,6 @@
 import math
 
+
 # 2000kms is the distance of the further debris 
 # since our satelite is in the middle of the screen [300,300]
 # 2000km = 300 pixels
@@ -12,6 +13,13 @@ def collision(projectile, debris):
 			return True
 
 	return False
+
+def velocity_change(projectile,debris):
+
+	vel_x = (((projectile.mass*projectile.vel_vector[0])+(debris.mass*debris.vel_vector[0]))/(projectile.mass*debris.mass))-debris.vel_vector[0]
+	vel_y = (((projectile.mass*projectile.vel_vector[1])+(debris.mass*debris.vel_vector[1]))/(projectile.mass*debris.mass))-debris.vel_vector[1]
+
+	return [vel_x, vel_y]
 
 def vec_to_angle_2d(x,y):
 	
