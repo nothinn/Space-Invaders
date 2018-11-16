@@ -1,5 +1,5 @@
 import math
-
+import random
 
 import numpy as np
 
@@ -185,3 +185,51 @@ def get_canvas_pos(x, y, canvas_info):
 	zoom_mult = canvas_info[2]
 
 	return (x*zoom_mult - ref_x*zoom_mult + 300), (y*zoom_mult - ref_y*zoom_mult + 300)
+
+
+def get_random_circular_orbit():
+	Er = 6371 # earth radius in km
+	r_length = random.uniform(160.0 + Er, 2000.0 + Er) # km
+	angle = random.uniform(0.0, math.pi)
+
+	r = [math.cos(angle)*r_length, math.sin(angle)*r_length, 0.0]
+
+	G = 6.67408*10**-11 #Gravitational constant m^3*kg^-1*s^-2
+	M_e = 5.9722*10**24 #mass of earth kg 
+	cirular_abs_vel = math.sqrt((G*M_e) / (r_length*10**3))
+
+	ran_seed = random.uniform(-1.0, 1.0)
+
+	if(ran_seed < 0):
+		vel_angle = angle + (math.pi * -1)/2
+	else:
+		vel_angle = angle + math.pi/2
+
+	vel = [math.cos(vel_angle) * cirular_abs_vel, math.sin(vel_angle) * cirular_abs_vel, 0]
+
+	return r, vel
+
+def get_random_ellipse_orbit():
+	Er = 6371 # earth radius in km
+	r_length = random.uniform(160.0 + Er, 2000.0 + Er) # km
+	angle = random.uniform(0.0, math.pi)
+
+	r = [math.cos(angle)*r_length, math.sin(angle)*r_length, 0.0]
+
+	G = 6.67408*10**-11 #Gravitational constant m^3*kg^-1*s^-2
+	M_e = 5.9722*10**24 #mass of earth kg 
+	cirular_abs_vel = math.sqrt((G*M_e) / (r_length*10**3))
+
+
+	ran_add_angle = random.uniform(-0.5, 0.5)
+	ran_seed = random.uniform(-1.0, 1.0)
+
+	if(ran_seed < 0):
+		vel_angle = angle + ((math.pi/2) * -1) + ran_add_angle
+
+	else:
+		vel_angle = angle + (math.pi/2) + ran_add_angle
+
+	vel = [math.cos(vel_angle) * cirular_abs_vel, math.sin(vel_angle) * cirular_abs_vel, 0]
+
+	return r, vel
