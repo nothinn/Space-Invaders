@@ -12,6 +12,13 @@ from poliastro.twobody import Orbit
 
 from poliastro.examples import iss
 
+from astropy import units as u
+
+from poliastro.bodies import Earth, Mars, Sun
+from poliastro.twobody import Orbit
+
+from poliastro.examples import iss
+
 class netted_debris():
 	def __init__(self, projectile, debris):
 		self.projectile = projectile
@@ -48,13 +55,19 @@ class debris(arcade.Sprite):
 
 
 		#Create an orbit object, which a debris is.
-		r = [-6045, -3490, 2500] * u.km
-		v = [-3.457, 6.618, 2.533] * u.km / u.s
+		r = [-6045, -3490, 2500]
+		v = [-3457, 6618, 2533]
+		rtest, vtest = functions.get_random_ellipse_orbit()
+		self.ss = Orbit.from_vectors(Earth, rtest * u.km, vtest * u.m / u.s)
 
-		self.ss = Orbit.from_vectors(Earth, r, v)
 
-		self.ss = iss
 
+
+
+	def give_impulse(self):
+		
+		print(functions.get_vector_orbit(self.ss))
+		self.ss = functions.orbit_impulse(self.ss,[100,0,0])
 
 
 	def update(self, delta_time, canvas_info):

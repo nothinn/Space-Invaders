@@ -1,5 +1,5 @@
 import math
-
+import random
 
 import numpy as np
 
@@ -40,36 +40,41 @@ def vec_to_angle_2d(x,y):
 	return degrees
 
 def orbit_to_position(orbit):
-	a = orbit.state.a
-	e = orbit.state.ecc
-	theta = orbit.state.nu / u.rad
-
-
+	#a = orbit.state.a
+	#e = orbit.state.ecc
+	#theta = orbit.state.nu / u.rad
 
 	#Equation from https://en.wikipedia.org/wiki/Kepler_orbit#Johannes_Kepler
 	#The radius equation
-	upper_part = a*(1-e*e)
-	lower_part = 1+e*math.cos(theta )
+	#upper_part = a*(1-e*e)
+	#lower_part = 1+e*math.cos(theta )
 
-	distance = upper_part/lower_part
+	#distance = upper_part/lower_part
 
-	x,y = angle_to_vec_2d(math.degrees(theta))
+	#x,y = angle_to_vec_2d(math.degrees(theta))
 
-	x *= distance
-	y *= distance
+	#x *= distance
+	#y *= distance
 
 	#print("x:{0:08.2f} y:{1:08.2f}".format(x,y))
 
 	#Multiply by 1000 to get it in meters
-	return x.value * 1000,y.value*1000
+
+	x = orbit.r[0]
+	y = orbit.r[1]
+
+	return x.value * 1000, y.value*1000
+
+def get_vector_orbit(orbit_element):
+	return orbit_element.state.v
+	
 
 def orbit_impulse(orbit, vector):
 	
-
 	dv = vector * u.m / u.s
 	man = Maneuver.impulse(dv)
 
-	orbit = orbit.apply_maneuver(man)
+	return orbit.apply_maneuver(man)
 
 
 def angle_to_vec_2d(angle):
@@ -187,3 +192,51 @@ def get_canvas_pos(x, y, canvas_info):
 	zoom_mult = canvas_info[2]
 
 	return (x*zoom_mult - ref_x*zoom_mult + 300), (y*zoom_mult - ref_y*zoom_mult + 300)
+
+
+def get_random_circular_orbit():
+	Er = 6371 # earth radius in km
+	r_length = random.uniform(160.0 + Er, 2000.0 + Er) # km
+	angle = random.uniform(0.0, math.pi)
+
+	r = [math.cos(angle)*r_length, math.sin(angle)*r_length, 0.0]
+
+	G = 6.67408*10**-11 #Gravitational constant m^3*kg^-1*s^-2
+	M_e = 5.9722*10**24 #mass of earth kg 
+	cirular_abs_vel = math.sqrt((G*M_e) / (r_length*10**3))
+
+	ran_seed = random.uniform(-1.0, 1.0)
+
+	if(ran_seed < 0):
+		vel_angle = angle + (math.pi * -1)/2
+	else:
+		vel_angle = angle + math.pi/2
+
+	vel = [math.cos(vel_angle) * cirular_abs_vel, math.sin(vel_angle) * cirular_abs_vel, 0]
+
+	return r, vel
+
+def get_random_ellipse_orbit():
+	Er = 6371 # earth radius in km
+	r_length = random.uniform(160.0 + Er, 2000.0 + Er) # km
+	angle = random.uniform(0.0, math.pi)
+
+	r = [math.cos(angle)*r_length, math.sin(angle)*r_length, 0.0]
+
+	G = 6.67408*10**-11 #Gravitational constant m^3*kg^-1*s^-2
+	M_e = 5.9722*10**24 #mass of earth kg 
+	cirular_abs_vel = math.sqrt((G*M_e) / (r_length*10**3))
+
+
+	ran_add_angle = random.uniform(-0.5, 0.5)
+	ran_seed = random.uniform(-1.0, 1.0)
+
+	if(ran_seed < 0):
+		vel_angle = angle + ((math.pi/2) * -1) + ran_add_angle
+
+	else:
+		vel_angle = angle + (math.pi/2) + ran_add_angle
+
+	vel = [math.cos(vel_angle) * cirular_abs_vel, math.sin(vel_angle) * cirular_abs_vel, 0]
+
+	return r, vel
