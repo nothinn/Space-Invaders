@@ -240,3 +240,50 @@ def get_random_ellipse_orbit():
 	vel = [math.cos(vel_angle) * cirular_abs_vel, math.sin(vel_angle) * cirular_abs_vel, 0]
 
 	return r, vel
+
+def rotate_satellite(satallite, angle_goal, start_time):
+	m = satallite.mass #kg
+	r = satallite.radius_to_thruster #m
+	F = satallite.rotate_thrust_force #N
+
+	degrees_of_rotation = angle_goal - satallite.angle
+	if  degrees_of_rotation < 180 and degrees_of_rotation >= 0:
+		aa = F/(m*r) #rad/s^2 angular acceleration
+	elif degrees_of_rotation > 180:
+		degrees_of_rotation = -(degrees_of_rotation - 180)
+		aa = -(F/(m*r))
+	elif degrees_of_rotation < -180:
+		degrees_of_rotation = -(degrees_of_rotation + 180)
+		aa = F/(m*r)
+	else:
+		aa = -(F/(m*r))
+
+
+	#calculate time to get to half the goal angle
+	t = math.sqrt((0.5*math.radians(degrees_of_rotation))/aa)
+
+	return [True, t, degrees_of_rotation, aa, start_time, satallite.angle]
+
+def update_satellite_rotation(satellite, current_time):
+	t = satellite.rotation_info[1]
+	degrees_of_rotation = satellite.rotation_info[2]
+	aa = satellite.rotation_info[3]
+	start_time = satellite.rotation_info[4]
+	start_angle = satellite.rotation_info[5]
+
+	if current_time > 2*t+start_time:
+		return start_angle + degrees_of_rotation, [False, 0, 0, 0, 0, 0]
+
+	time_passed = current_time - start_time
+	
+	if time_passed <= t:
+		rotated = (aa/2)*(time_passed**2)
+		new_angle = math.degrees(rotated) + start_angle
+		
+	else:
+		rotated =  math.radians(degrees_of_rotation)/2 + aa*t*t + (-aa/2)*((time_passed-t)**2) 
+		new_angle = math.degrees(rotated) + start_angle
+
+	new_angle = new_angle % 360
+
+	return new_angle, [True, t, degrees_of_rotation, aa, start_time, start_angle]
