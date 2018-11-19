@@ -20,7 +20,7 @@ import math
 
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 600
-TIME_MULTIPLIER = 200
+TIME_MULTIPLIER = 20
 
 
 
@@ -85,7 +85,7 @@ class MyGame(arcade.Window):
 		self.debris_list.append(debris)
 		self.sprites_list.append(debris)
 
-		self.satellite.update_angle(self.debris_list[0])
+		#self.satellite.update_angle(self.debris_list[0])
 		
 
 
@@ -157,6 +157,9 @@ class MyGame(arcade.Window):
 		elif symbol == arcade.key.P: #Apply impulse
 			debris = self.debris_list[0]
 			debris.give_impulse()
+
+		elif symbol == arcade.key.R:
+			self.satellite.start_rotation(random.uniform(0, 360))
 
 
 	def on_key_release(self, symbol, modifiers):
@@ -235,7 +238,8 @@ class MyGame(arcade.Window):
 			self.sprites_list.append(shot)
 			self.satellite.time_to_shoot = float("inf")
 
-
+		
+		self.satellite.update(delta_time*TIME_MULTIPLIER, self.canvas_info, self.total_time)
 		for member in self.projectile_list:
 			member.update(delta_time*TIME_MULTIPLIER, self.canvas_info)
 
