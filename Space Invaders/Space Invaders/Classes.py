@@ -127,7 +127,12 @@ class satellite(arcade.Sprite):
 		self.center_x = 300 #center is the postion on canvas
 		self.center_y = 300
 		self.angle = 0
+		self.mass = 440 # kg - from new horizons
+		self.radius_to_thruster = 1.2 #m - distance from center of mass og new horizons to is rotation thruster
+		self.rotate_thrust_force = 0.9 #N - from new horizons orientations thrusters
 
+		self.rotation_info = [False, 0, 0, 0, 0, 0] # [0: Rotation in motion, 1: rotation half time, 2: degrees of rotation, 3: angular accelearion, 4: start time, 5:start angle]
+		self.rotation_start = [False, 0] 
 
 		
 		#Setup values needed for updating the satelllite
@@ -145,6 +150,18 @@ class satellite(arcade.Sprite):
 		real_y = debris.center_y - self.center_y
 
 		self.angle = functions.vec_to_angle_2d(real_x,real_y)
+
+	def update(self, delta_time, canvas_info, total_time):
+
+		if self.rotation_start[0]:
+			self.rotation_info = functions.rotate_satellite(self, self.rotation_start[1], total_time)
+			self.rotation_start[0] = False
+
+		if self.rotation_info[0]:
+			self.angle, self.rotation_info = functions.update_satellite_rotation(self, total_time)
+	
+	def start_rotation(self, angle_goal):
+		self.rotation_start = [True, angle_goal]
 
 	def rotate(self, delta_time, direction):
 		self.angle += delta_time * direction*50
