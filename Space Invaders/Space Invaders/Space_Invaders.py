@@ -193,6 +193,9 @@ class MyGame(arcade.Window):
 			else:
 				self.update = True
 
+		elif symbol == arcade.key.R:
+			self.satellite.start_rotation(random.uniform(0, 360))
+
 	
 	def on_key_release(self, symbol, modifiers):
 		if symbol == arcade.key.LEFT:
@@ -282,6 +285,7 @@ class MyGame(arcade.Window):
 				self.sprites_list.append(shot)
 				self.satellite.time_to_shoot = float("inf")
 
+			self.satellite.update(delta_time*TIME_MULTIPLIER, self.canvas_info, self.total_time)
 			for member in self.projectile_list:
 				member.update(delta_time*TIME_MULTIPLIER, self.canvas_info)
 
