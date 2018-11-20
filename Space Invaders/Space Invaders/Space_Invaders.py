@@ -28,7 +28,7 @@ class MyGame(arcade.Window):
 	def __init__(self, width, height):
 		super().__init__(width,height)
 		arcade.set_background_color(arcade.color.AMAZON)
-		
+
 		#Set path directory
 		self.file_path = os.path.dirname(os.path.abspath(__file__))
 		os.chdir(self.file_path)
@@ -45,16 +45,18 @@ class MyGame(arcade.Window):
 		self.right = 0
 		self.left = 0
 		self.total_time = 0.0
-		
-		# for canvas center and zoom factor - relative to model coordinate system
 
-		self.canvas_info = [0, 0, 1]
+		# for canvas center and zoom factor - relative to model coordinate system
+		self.canvas_info = [0, 0, 1/32768, 1]
 
 		#self.canvas_center_x = 0 # equal to satalite real in (set update)
 		#self.canvas_center_y = 0
 		#self.zoom_mult = 1 
 
+		self.display_karman_line = True
 		self.display_coordinates = False
+		self.update = True
+
 
 	def setup(self):
 
@@ -69,9 +71,9 @@ class MyGame(arcade.Window):
 		#Generate satellite sprite
 		self.satellite = Classes.satellite(0, 705*10**3, "Images/satellite.png",0.2)
 		self.sprites_list.append(self.satellite)
-		
+	
 		#Generate earth
-		self.earth = Classes.earth("Images/earth.png",0.5)
+		self.earth = Classes.earth("Images/earth.png",0.82)
 		self.sprites_list.append(self.earth)
 
 
@@ -85,15 +87,15 @@ class MyGame(arcade.Window):
 		self.debris_list.append(debris)
 		self.sprites_list.append(debris)
 
-		#self.satellite.update_angle(self.debris_list[0])
-		
-
-
-		
+		self.satellite.update_angle(self.debris_list[0])
 
 
 
-		
+
+
+
+
+
 
 	def on_key_press(self, symbol, modifiers):
 		if symbol == arcade.key.ENTER:
@@ -103,7 +105,7 @@ class MyGame(arcade.Window):
 
 			self.projectile_list.append(projectile)
 			self.sprites_list.append(projectile)
-		
+			
 		elif symbol == arcade.key.M:
 
 			debris_vel = 0.15
@@ -141,32 +143,72 @@ class MyGame(arcade.Window):
 				self.display_coordinates = False
 			else:
 				self.display_coordinates = True
+
+		elif symbol == arcade.key.K:
+			if(self.display_karman_line):
+				self.display_karman_line = False
+			else:
+				self.display_karman_line = True
+
 		elif symbol == arcade.key.I: #zoom in
 			self.canvas_info[2] *= 2
+			self.canvas_info[3] += 1
+			self.earth.kill()
+
+			if(self.canvas_info[3] < 0):
+				self.earth = Classes.earth("Images/earth.png",0.82 * ( 1 / (-4 * self.canvas_info[3])))
+			elif(self.canvas_info[3] == 0):
+				self.earth = Classes.earth("Images/earth.png",0.82 * 0.5)
+			else:
+				self.earth = Classes.earth("Images/earth.png",0.82 * self.canvas_info[3])
+
+			self.sprites_list.append(self.earth)
 
 		elif symbol == arcade.key.O: #zoom out
 			self.canvas_info[2] *= 0.5
+			self.canvas_info[3] -= 1
+			self.earth.kill()
+
+			if(self.canvas_info[3] < 0):
+				self.earth = Classes.earth("Images/earth.png",0.82 * ( 1 / (-4 * self.canvas_info[3])))
+			elif(self.canvas_info[3] == 0):
+				self.earth = Classes.earth("Images/earth.png",0.82 * 0.5)
+			else:
+				self.earth = Classes.earth("Images/earth.png",0.82 * self.canvas_info[3])
+
+			self.sprites_list.append(self.earth)
 
 		elif symbol == arcade.key.C:
 			new_debris = Classes.debris(0, 0, [0,0], "Images/debris.png", self.canvas_info)
 			self.debris_list.append(new_debris)
 			self.sprites_list.append(new_debris)
 
-
-
-		elif symbol == arcade.key.P: #Apply impulse
+		elif symbol == arcade.key.L: #Apply impulse
 			debris = self.debris_list[0]
 			debris.give_impulse()
 
-		elif symbol == arcade.key.R:
-			self.satellite.start_rotation(random.uniform(0, 360))
+		elif symbol == arcade.key.P: #Pause
+			if(self.update):
+				self.update = False
+			else:
+				self.update = True
 
-
+	
 	def on_key_release(self, symbol, modifiers):
 		if symbol == arcade.key.LEFT:
 			self.left = 0
 		elif symbol == arcade.key.RIGHT:
 			self.right = 0
+
+	def get_max(self, max_value, value):
+		if(max_value < value):
+			max_value = value
+		return max_value
+
+	def get_min(self, min_value, value):
+		if(min_value > value):
+			min_value = value
+		return min_value
 
 
 
@@ -203,7 +245,7 @@ class MyGame(arcade.Window):
 				str_left_scale = "0" + "m"
 				str_middle_scale = f"{middle_scale}" + "m"
 				str_right_scale = f"{right_scale}" + "m"
-		
+
 		#Draw scale in bottom left corner
 		arcade.draw_line(10, 10, 160, 10, arcade.color.BLACK, 1) # line
 		arcade.draw_line(10, 10, 10, 16, arcade.color.BLACK, 1) # left dash
@@ -212,7 +254,8 @@ class MyGame(arcade.Window):
 		arcade.draw_text(str_left_scale, 8, 18, arcade.color.BLACK, 8)
 		arcade.draw_text(str_middle_scale, 76, 18, arcade.color.BLACK, 8)
 		arcade.draw_text(str_right_scale, 148, 18, arcade.color.BLACK, 8)
-		
+
+
 
 		#Draw all sprites
 		self.sprites_list.draw()
@@ -221,54 +264,46 @@ class MyGame(arcade.Window):
 		if(self.display_coordinates):
 			for x in self.debris_list:
 				if(x != self.satellite):
-					arcade.draw_text("    [{}]\n    [{}]".format(round(x.center_x,3), round(x.center_y,3)), 200, 100, arcade.color.BLACK, 8)
+					arcade.draw_text("    [{}]\n    [{}]".format(round(x.center_x,3), round(x.center_y,3)), x.center_x, x.center_y, arcade.color.BLACK, 8)
 
-
+		if(self.display_karman_line):
+			arcade.draw_circle_outline(self.earth.center_x, self.earth.center_y, (120 + 6371) * 1000 * self.canvas_info[2] , arcade.color.CYAN, 1)
+			arcade.draw_circle_outline(self.earth.center_x, self.earth.center_y, (2000 + 6371) * 1000 * self.canvas_info[2] , arcade.color.CYBER_GRAPE, 1)
 
 	def update(self, delta_time):
-		self.total_time += delta_time * TIME_MULTIPLIER
-		self.canvas_info[0] = self.satellite.model_x
-		self.canvas_info[1] = self.satellite.model_y
-		
+		if(self.update):
+			self.total_time += delta_time * TIME_MULTIPLIER
+			self.canvas_info[0] = self.satellite.model_x
+			self.canvas_info[1] = self.satellite.model_y
 
-		
-		if self.satellite.time_to_shoot <= 0:
-			shot = self.satellite.get_projectile()
-			self.projectile_list.append(shot)
-			self.sprites_list.append(shot)
-			self.satellite.time_to_shoot = float("inf")
+			if self.satellite.time_to_shoot <= 0:
+				shot = self.satellite.get_projectile()
+				self.projectile_list.append(shot)
+				self.sprites_list.append(shot)
+				self.satellite.time_to_shoot = float("inf")
 
-		
-		self.satellite.update(delta_time*TIME_MULTIPLIER, self.canvas_info, self.total_time)
-		for member in self.projectile_list:
-			member.update(delta_time*TIME_MULTIPLIER, self.canvas_info)
+			for member in self.projectile_list:
+				member.update(delta_time*TIME_MULTIPLIER, self.canvas_info)
 
-		for member in self.debris_list:
-			member.update(delta_time*TIME_MULTIPLIER, self.canvas_info)
-		for member in self.netted_debris_list:
-			member.update(delta_time*TIME_MULTIPLIER, self.canvas_info)
-			if abs(member.debris.center_x) > 1000 or abs(member.debris.center_y) > 1000:
-				member.kill()
-				print("Killed netted debris")
-				self.netted_debris_list.remove(member)
-		self.earth.update(delta_time*TIME_MULTIPLIER, self.canvas_info)
+			for member in self.debris_list:
+				member.update(delta_time*TIME_MULTIPLIER, self.canvas_info)
+			for member in self.netted_debris_list:
+				member.update(delta_time*TIME_MULTIPLIER, self.canvas_info)
+				if abs(member.debris.center_x) > 1000 or abs(member.debris.center_y) > 1000:
+					member.kill()
+					print("Killed netted debris")
+					self.netted_debris_list.remove(member)
+			self.earth.update(delta_time*TIME_MULTIPLIER, self.canvas_info)
 
-	
+			#Test for collisions:
+			for idx, projectile in enumerate(self.projectile_list):
+				for idy, debris in enumerate(self.debris_list):
+					if functions.collision(projectile, debris):
+						print("Collision detected at X:{}, Y:{}".format(projectile.center_x, projectile.center_y))
 
-
-		#Test for collisions:
-		for idx, projectile in enumerate(self.projectile_list):
-			for idy, debris in enumerate(self.debris_list):
-				if functions.collision(projectile, debris):
-					print("Collision detected at X:{}, Y:{}".format(projectile.center_x, projectile.center_y))
-
-					self.netted_debris_list.append(Classes.netted_debris(projectile,debris))
-					self.projectile_list.remove(projectile)
-					self.debris_list.remove(debris)
-
-					
-					
-					
+						self.netted_debris_list.append(Classes.netted_debris(projectile,debris))
+						self.projectile_list.remove(projectile)
+						self.debris_list.remove(debris)
 
 
 def main():
