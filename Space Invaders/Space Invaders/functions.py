@@ -260,7 +260,7 @@ def rotate_satellite(satallite, angle_goal, start_time):
 
 
 	#calculate time to get to half the goal angle
-	t = math.sqrt((0.5*math.radians(degrees_of_rotation))/aa)
+	t = math.sqrt((math.radians(degrees_of_rotation))/aa)
 
 	return [True, t, degrees_of_rotation, aa, start_time, satallite.angle]
 
@@ -272,7 +272,7 @@ def update_satellite_rotation(satellite, current_time):
 	start_angle = satellite.rotation_info[5]
 
 	if current_time > 2*t+start_time:
-		return start_angle + degrees_of_rotation, [False, 0, 0, 0, 0, 0]
+		return (start_angle + degrees_of_rotation) % 360, [False, 0, 0, 0, 0, 0]
 
 	time_passed = current_time - start_time
 	
@@ -281,7 +281,7 @@ def update_satellite_rotation(satellite, current_time):
 		new_angle = math.degrees(rotated) + start_angle
 		
 	else:
-		rotated =  math.radians(degrees_of_rotation)/2 + aa*t*t + (-aa/2)*((time_passed-t)**2) 
+		rotated =  math.radians(degrees_of_rotation)/2 + aa*t*(time_passed-t) + (-aa/2)*((time_passed-t)**2) 
 		new_angle = math.degrees(rotated) + start_angle
 
 	new_angle = new_angle % 360
