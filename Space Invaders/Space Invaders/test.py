@@ -68,32 +68,82 @@ def min_distance(ss_orig):
 		#This means that 0 degrees is a head on collision
 		#90 degrees is a collision so that it will line up towards earth
 		#180 degrees is a collision from behind, which is hard to accomplish.
-		for angle in range(-180,180,1):
 
+
+
+
+		#We apply gradient descent to this.
+		#for angle in range(-180,180,1):
+
+		#	orbit_vector = functions.get_vector_orbit(ss_orig)
+		#	new_angle = functions.vec_to_angle_2d(orbit_vector[0].value,orbit_vector[1].value)
+		#	new_angle = new_angle -180 + angle
+
+		#	#The angle is normalized, meaning it will have the same length no matter what.
+		#	x,y = functions.angle_to_vec_2d(new_angle)
+
+
+		#	ss = functions.orbit_impulse(ss_orig,[x*10,y*10,0])
+
+		#	#The periapsis tells us the closest point to earth.
+		#	periapsis_radius = ss.r_p
+
+		#	if periapsis_radius < best_periapsis:
+		#		best_periapsis = periapsis_radius
+		#		best_x = x
+		#		best_y = y
+		#		best_angle = angle
+		#	#If this is within the karman line, the debris will be destroyed
+		#	#print(periapsis_radius - earth_radius* u.km)
+
+
+		current_periapsis = 10000000*u.km
+		last_periapsis = 1*u.km
+		angle = -179
+		change = 40
+		swapped_last = False
+		direction = 1
+		#While the change is larger than 1 meter
+
+		iterations = 0
+
+		while abs(last_periapsis - current_periapsis) > 1*u.m:
+			iterations += 1
+			angle += change * direction
+
+			last_periapsis = current_periapsis
 			orbit_vector = functions.get_vector_orbit(ss_orig)
-
 			new_angle = functions.vec_to_angle_2d(orbit_vector[0].value,orbit_vector[1].value)
-
 			new_angle = new_angle -180 + angle
 
 			#The angle is normalized, meaning it will have the same length no matter what.
 			x,y = functions.angle_to_vec_2d(new_angle)
-
-
 			ss = functions.orbit_impulse(ss_orig,[x*10,y*10,0])
 
 			#The periapsis tells us the closest point to earth.
-			periapsis_radius = ss.r_p
+			current_periapsis = ss.r_p
 
-			if periapsis_radius < best_periapsis:
-				best_periapsis = periapsis_radius
-				best_x = x
-				best_y = y
-				best_angle = angle
-			#If this is within the karman line, the debris will be destroyed
-			#print(periapsis_radius - earth_radius* u.km)
+			#The bad case
+			if current_periapsis > last_periapsis:
+				#We move in the other direction
+				direction *= -1
 
-		return best_periapsis, best_angle
+				#If we did not change direction last time, we half the distance.
+				if not swapped_last:
+					change /= 2
+				last_periapsis = 0*u.km
+				swapped_last = True
+			else:
+				swapped_last = False
+
+		print("Iterations:")
+		print(iterations)
+		return current_periapsis, angle
+
+
+
+
+
 
 def optimal_impact(ss_orig):
 	propagated_time = 0*u.h
@@ -127,32 +177,53 @@ def optimal_impact(ss_orig):
 		direction = 1
 		last_periapsis = best_periapsis_front
 
-	current_periapsis = 1*u.km
+	current_periapsis = 1000000000*u.km
 
 	current_ss = ss_orig
-	prop_time = 1*u.h
 
-	while(abs(last_periapsis - current_periapsis)> 1*u.km):
+	
+
+	prop_time = current_ss.state.period / 10
+
+	swapped_last = False
+
+	iterations = 0
+
+	while(abs(last_periapsis - current_periapsis)> 100*u.m):
+		iterations += 1
+		last_periapsis = current_periapsis
+		old_ss = current_ss
 		current_ss = current_ss.propagate(prop_time*direction)
 		propagated_time += prop_time
 
 		current_periapsis,best_angle = min_distance(current_ss)
 		#If we do not improve, we swap direction and half the propagation time
 		if current_periapsis > last_periapsis:
+
+			propagated_time -= prop_time
+			
 			direction *= -1
-			prop_time /= 2
+			if not swapped_last:
+				prop_time /= 2
 
-			current_ss = current_ss.propagate(prop_time*direction)
-			propagated_time += prop_time
-			current_periapsis,best_angle = min_distance(current_ss.propagate(prop_time*direction))
+			current_ss = old_ss #current_ss.propagate(prop_time*direction)
+			#current_periapsis,best_angle = min_distance(current_ss.propagate(prop_time*direction))
+			last_periapsis = 0*u.km
+			swapped_last = True
+			
+		else:
+			swapped_last = False
 
 
-		last_periapsis = current_periapsis
 
 	pos = functions.orbit_to_position(current_ss)
 	first_angle = functions.vec_to_angle_2d(pos[0],pos[1])
 	angle_of_debris = first_angle
 
+	print(current_periapsis)
+
+	print("Iterations last")
+	print(iterations)
 	return propagated_time,best_angle, angle_of_debris
 
 
@@ -280,6 +351,7 @@ def heatmap_orbit(ss_orig,xticks,yticks):
 	pos = functions.orbit_to_position(best_ss)
 	first_angle = functions.vec_to_angle_2d(pos[0],pos[1])
 	print(first_angle)
+	print(best_ss.r_p.value - earth_radius)
 
 	op2.plot(ss_orig,label = "original")
 	op2.plot(best_ss, label = "Best outcome")
@@ -320,6 +392,13 @@ def heatmap_orbit(ss_orig,xticks,yticks):
 	ax.set_xlabel("Angle of impact [Degrees]")
 	ax.set_ylabel("Angle of debris [Degrees]")
 
+
+	for tick in ax.get_xticklabels():
+		tick.set_rotation(45)
+
+
+	for tick in ax.get_yticklabels():
+		tick.set_rotation(0)
 
 
 	plt2.show()
