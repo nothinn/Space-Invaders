@@ -5,6 +5,8 @@ import random
 import functions
 import Classes
 
+import test
+
 import math
 
 
@@ -312,14 +314,16 @@ class MyGame(arcade.Window):
 
 def main():
 
+	if True:
+		test.main()
+	else:
+		game = MyGame(SCREEN_WIDTH,SCREEN_HEIGHT)
+		game.setup()
 
-	game = MyGame(SCREEN_WIDTH,SCREEN_HEIGHT)
-	game.setup()
-
-	arcade.run()
+		arcade.run()
 
 
-	print("Running")
+		print("Running")
 
 if __name__ == "__main__":
 	main()
