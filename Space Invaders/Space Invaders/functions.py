@@ -209,7 +209,7 @@ def get_random_circular_orbit():
 
 def get_random_ellipse_orbit():
 	Er = 6371 # earth radius in km
-	r_length = random.uniform(160.0 + Er, 2000.0 + Er) # km
+	r_length =  random.uniform(200.0 + Er, 2000.0 + Er) # km
 	angle = random.uniform(0.0, math.pi)
 
 	r = [math.cos(angle)*r_length, math.sin(angle)*r_length, 0.0]
@@ -219,7 +219,7 @@ def get_random_ellipse_orbit():
 	cirular_abs_vel = math.sqrt((G*M_e) / (r_length*10**3))
 
 
-	ran_add_angle = random.uniform(-0.5, 0.5)
+	ran_add_angle = random.uniform(-0.0125, 0.0125)*((r_length-Er)/200) #different amount of ellipticallity is allowed for different radiuses
 	ran_seed = random.uniform(-1.0, 1.0)
 
 	if(ran_seed < 0):
