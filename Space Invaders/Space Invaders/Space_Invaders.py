@@ -189,6 +189,9 @@ class MyGame(arcade.Window):
 		elif symbol == arcade.key.Y:
 			self.center_option = not self.center_option
 
+		elif symbol == arcade.key.T:
+			functions.find_crossing_times(self.satellite, self.debris_list, 86400)
+
 	
 	def on_key_release(self, symbol, modifiers):
 		if symbol == arcade.key.LEFT:

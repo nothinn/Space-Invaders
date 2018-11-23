@@ -12,6 +12,8 @@ from poliastro.maneuver import Maneuver
 
 from poliastro.plotting import plot
 
+from astropy import units as u
+
 def collision(projectile, debris):
 
 	if abs(projectile.center_x - debris.center_x) < 10:
@@ -283,3 +285,44 @@ def update_satellite_rotation(satellite, current_time):
 	new_angle = new_angle % 360
 
 	return new_angle, [True, t, degrees_of_rotation, aa, start_time, start_angle]
+
+def orbit_direction(orbit):
+	initial_x, initial_y = orbit_to_position(orbit)
+	later_x, later_y = orbit_to_position(orbit.propagate(60 * u.s))
+
+	initial_angle = vec_to_angle_2d(initial_x, initial_y)
+	later_angle = vec_to_angle_2d(later_x, later_y)
+
+	angle_difference = (later_angle%360) - (initial_angle%360) 
+
+	# we assume that all periods are well above 30min thats means that we can check the boundery condition as below
+	if angle_difference >= 0 and angle_difference < 180:
+		res = -1
+	elif angle_difference < 0 and angle_difference > -180:
+		res = 1
+	elif angle_differnce <= 0:
+		res = -1
+	else:
+		res = 1
+	
+	return res #-1 counter clockwise, 1: clockwise
+
+def find_crossing_times(satellite, debris_list, seek_time):
+	# start by figuring out of satellite are moving clockwise or counter clockwise
+	satelite_rot_dir = orbit_direction(satellite.orbit)
+	
+	for debris in debris_list: # we are testing for all debris
+		if satelite_rot_dir == orbit_direction(debris.orbit): # if the satelite travels in same direction we wont have enough impulse and we wont calculate on this debris.
+			continue
+
+		seek_time_unit = seek_time * u.s
+		debris_period = debris.orbit.state.period
+		satellite_period = satellite.orbit.state.period
+
+		nr_of_crossings = seek_time_unit/debris_period + seek_time_unit/satellite_period
+
+		for i in range(0, int(nr_of_crossings)*2):
+			
+
+	hej = nr_of_crossings.value
+	sven = 2
