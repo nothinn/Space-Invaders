@@ -88,6 +88,7 @@ class MyGame(arcade.Window):
 
 
 	def on_key_press(self, symbol, modifiers):
+		#Shoot projectile straight from satellite
 		if symbol == arcade.key.ENTER:
 
 			vec_x, vec_y = functions.angle_to_vec_2d(self.satellite.angle)
@@ -96,6 +97,7 @@ class MyGame(arcade.Window):
 			self.projectile_list.append(projectile)
 			self.sprites_list.append(projectile)
 			
+		#Make debris and shoot at it immediately
 		elif symbol == arcade.key.M:
 
 			debris_vel = 0.15
@@ -114,10 +116,7 @@ class MyGame(arcade.Window):
 			self.projectile_list.append(new_projectile)
 			self.sprites_list.append(new_projectile)
 
-		elif symbol == arcade.key.LEFT:
-			self.left = 1
-		elif symbol == arcade.key.RIGHT:
-			self.right = 1
+
 		#elif symbol == arcade.key.N:
 		#	debris_vel = 0.3
 		#	debris_x = random.uniform(self.canvas_info[0] - 300, self.canvas_info[0] + 300)
@@ -128,19 +127,22 @@ class MyGame(arcade.Window):
 		#	self.sprites_list.append(new_debris)
 		#	self.satellite.give_objective(new_debris)
 
+		#Display coordinates of objects
 		elif symbol == arcade.key.D:
 			if(self.display_coordinates):
 				self.display_coordinates = False
 			else:
 				self.display_coordinates = True
 
+		#Show or hide the karman line
 		elif symbol == arcade.key.K:
 			if(self.display_karman_line):
 				self.display_karman_line = False
 			else:
 				self.display_karman_line = True
 
-		elif symbol == arcade.key.I: #zoom in
+		#zoom in
+		elif symbol == arcade.key.I: 
 			self.canvas_info[2] *= 2
 			self.canvas_info[3] += 1
 			self.earth.kill()
@@ -153,8 +155,9 @@ class MyGame(arcade.Window):
 				self.earth = Classes.earth("Images/earth.png",0.82 * self.canvas_info[3])
 
 			self.sprites_list.append(self.earth)
-
-		elif symbol == arcade.key.O: #zoom out
+			
+		#zoom out
+		elif symbol == arcade.key.O: 
 			self.canvas_info[2] *= 0.5
 			self.canvas_info[3] -= 1
 			self.earth.kill()
@@ -168,24 +171,30 @@ class MyGame(arcade.Window):
 
 			self.sprites_list.append(self.earth)
 
+		#Create random debris
 		elif symbol == arcade.key.C:
 			new_debris = Classes.debris(0, 0, [0,0], "Images/debris.png", self.canvas_info)
 			self.debris_list.append(new_debris)
 			self.sprites_list.append(new_debris)
 
-		elif symbol == arcade.key.L: #Apply impulse
+		#Apply impulse to debris 0
+		elif symbol == arcade.key.L: 
 			debris = self.debris_list[0]
 			debris.give_impulse()
 
-		elif symbol == arcade.key.P: #Pause
+
+		#Pause
+		elif symbol == arcade.key.P: 
 			if(self.update):
 				self.update = False
 			else:
 				self.update = True
 
+		#Rotate	satellite to random angle
 		elif symbol == arcade.key.R:
 			self.satellite.start_rotation(random.uniform(0, 360))
 
+		#Toggle center of screen to be between earth and satellite
 		elif symbol == arcade.key.Y:
 			self.center_option = not self.center_option
 
