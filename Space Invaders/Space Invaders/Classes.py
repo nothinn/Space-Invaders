@@ -91,15 +91,17 @@ class debris(arcade.Sprite):
 
 
 class projectile(arcade.Sprite):
-	def __init__(self, scale, x, y, vel_vector, canvas_info, filename = "Images/net.png"):
+	def __init__(self, scale, x, y, vel_vector, canvas_info, mass = 42*u.kg, filename = "Images/net.png"):
 		super().__init__(filename, scale)
 
 		self.model_x = x #model is the postion in the background model
 		self.model_y = y
 		self.center_x, self.center_y = functions.get_canvas_pos(x, y, canvas_info) #center is the postion on canvas
-		self.vel_vector = vel_vector
+		self.vel_vector = vel_vector * u.m/u.s
 
 		self.angle = functions.vec_to_angle_2d(vel_vector[0],vel_vector[1]) 
+
+		self.mass = mass
 
 
 	def update(self, delta_time, canvas_info):
