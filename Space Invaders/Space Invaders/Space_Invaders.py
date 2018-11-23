@@ -318,7 +318,7 @@ class MyGame(arcade.Window):
 
 def main():
 
-	if True:
+	if False:
 		test.main()
 	else:
 		game = MyGame(SCREEN_WIDTH,SCREEN_HEIGHT)
