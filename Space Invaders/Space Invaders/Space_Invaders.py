@@ -1,29 +1,15 @@
 import arcade
 import os
-
+import math
 import random
+
 import functions
 import Classes
-
 import test
-
-import math
-
-
-
-
-
-
-
-
-
-
-
 
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 600
 TIME_MULTIPLIER = 200
-
 
 
 class MyGame(arcade.Window):
@@ -50,6 +36,8 @@ class MyGame(arcade.Window):
 
 		# for canvas center and zoom factor - relative to model coordinate system
 		self.canvas_info = [0, 0, 1/32768, 1]
+
+		self.center_option = False # False satellite is center, True Earth is center
 
 		#self.canvas_center_x = 0 # equal to satalite real in (set update)
 		#self.canvas_center_y = 0
@@ -198,6 +186,9 @@ class MyGame(arcade.Window):
 		elif symbol == arcade.key.R:
 			self.satellite.start_rotation(random.uniform(0, 360))
 
+		elif symbol == arcade.key.Y:
+			self.center_option = not self.center_option
+
 	
 	def on_key_release(self, symbol, modifiers):
 		if symbol == arcade.key.LEFT:
@@ -278,8 +269,12 @@ class MyGame(arcade.Window):
 	def update(self, delta_time):
 		if(self.update):
 			self.total_time += delta_time * TIME_MULTIPLIER
-			self.canvas_info[0] = self.satellite.model_x
-			self.canvas_info[1] = self.satellite.model_y
+			if self.center_option:
+				self.canvas_info[0] = self.satellite.model_x
+				self.canvas_info[1] = self.satellite.model_y
+			else:
+				self.canvas_info[0] = SCREEN_WIDTH/2
+				self.canvas_info[1] = SCREEN_HEIGHT/2
 
 			if self.satellite.time_to_shoot <= 0:
 				shot = self.satellite.get_projectile()
