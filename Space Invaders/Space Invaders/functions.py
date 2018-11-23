@@ -232,7 +232,11 @@ def get_random_ellipse_orbit():
 
 	return r, vel
 
-def rotate_satellite(satallite, angle_goal, start_time):
+def rotate_satellite(satallite, angle_goal, start_time): 
+	# This function calculates the parameters for a rotation.
+	# The function assumes a initial angular velocity of 0.
+	# As there is constant acceleration we can calculate the time to get halfway to the goal, 
+	# then deaccelerate for the same time.
 	m = satallite.mass #kg
 	r = satallite.radius_to_thruster #m
 	F = satallite.rotate_thrust_force #N
@@ -251,27 +255,28 @@ def rotate_satellite(satallite, angle_goal, start_time):
 
 
 	#calculate time to get to half the goal angle
-	t = math.sqrt((math.radians(degrees_of_rotation))/aa)
+	t = math.sqrt((math.radians(degrees_of_rotation))/aa) #
 
 	return [True, t, degrees_of_rotation, aa, start_time, satallite.angle]
 
 def update_satellite_rotation(satellite, current_time):
+	# This function updates the angle of the satillite during rotation
 	t = satellite.rotation_info[1]
 	degrees_of_rotation = satellite.rotation_info[2]
 	aa = satellite.rotation_info[3]
 	start_time = satellite.rotation_info[4]
 	start_angle = satellite.rotation_info[5]
 
-	if current_time > 2*t+start_time:
+	if current_time > 2*t+start_time: # If the rotation is over set the angle to the goal and stop the rotation
 		return (start_angle + degrees_of_rotation) % 360, [False, 0, 0, 0, 0, 0]
 
 	time_passed = current_time - start_time
 	
-	if time_passed <= t:
+	if time_passed <= t: # Set angle doing acceleration
 		rotated = (aa/2)*(time_passed**2)
 		new_angle = math.degrees(rotated) + start_angle
 		
-	else:
+	else: # Set angle doing deacceleration
 		rotated =  math.radians(degrees_of_rotation)/2 + aa*t*(time_passed-t) + (-aa/2)*((time_passed-t)**2) 
 		new_angle = math.degrees(rotated) + start_angle
 
