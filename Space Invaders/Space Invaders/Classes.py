@@ -58,7 +58,7 @@ class debris(arcade.Sprite):
 		r = [-6045, -3490, 2500]
 		v = [-3457, 6618, 2533]
 		rtest, vtest = functions.get_random_ellipse_orbit()
-		self.ss = Orbit.from_vectors(Earth, rtest * u.km, vtest * u.m / u.s)
+		self.orbit = Orbit.from_vectors(Earth, rtest * u.km, vtest * u.m / u.s)
 
 
 
@@ -66,8 +66,8 @@ class debris(arcade.Sprite):
 
 	def give_impulse(self):
 		
-		print(functions.get_vector_orbit(self.ss))
-		self.ss = functions.orbit_impulse(self.ss,[100,0,0])
+		print(functions.get_vector_orbit(self.orbit))
+		self.orbit = functions.orbit_impulse(self.orbit,[100,0,0])
 
 
 	def update(self, delta_time, canvas_info):
@@ -76,8 +76,8 @@ class debris(arcade.Sprite):
 
 
 		#We move the debris a certain time.
-		self.ss = self.ss.propagate(delta_time * u.s)
-		self.model_x, self.model_y = functions.orbit_to_position(self.ss)
+		self.orbit = self.orbit.propagate(delta_time * u.s)
+		self.model_x, self.model_y = functions.orbit_to_position(self.orbit)
 		
 		self.center_x, self.center_y = functions.get_canvas_pos(self.model_x, self.model_y, canvas_info)
 
@@ -140,6 +140,13 @@ class satellite(arcade.Sprite):
 		self.angle_goal = 0
 		self.time_to_shoot = float("inf")
 
+
+		#Create an orbit object, which a debris is.
+		r = [-6045, -3490, 2500]
+		v = [-3457, 6618, 2533]
+		rtest, vtest = functions.get_random_ellipse_orbit()
+		self.orbit = Orbit.from_vectors(Earth, rtest * u.km, vtest * u.m / u.s)
+
 	def __eq__(self, other):
 		# equality metho for comapring satellite instance
 		return self.__dict__ == other.__dict__
@@ -151,6 +158,7 @@ class satellite(arcade.Sprite):
 
 		self.angle = functions.vec_to_angle_2d(real_x,real_y)
 
+
 	def update(self, delta_time, canvas_info, total_time):
 
 		if self.rotation_start[0]:
@@ -159,6 +167,13 @@ class satellite(arcade.Sprite):
 
 		if self.rotation_info[0]:
 			self.angle, self.rotation_info = functions.update_satellite_rotation(self, total_time)
+
+		
+		#We move the debris a certain time.
+		self.orbit = self.orbit.propagate(delta_time * u.s)
+		self.model_x, self.model_y = functions.orbit_to_position(self.orbit)
+
+		self.center_x, self.center_y = functions.get_canvas_pos(self.model_x, self.model_y, canvas_info)
 	
 	def start_rotation(self, angle_goal):
 		self.rotation_start = [True, angle_goal]
