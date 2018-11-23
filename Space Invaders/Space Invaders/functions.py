@@ -1,6 +1,8 @@
 import math
 import random
 
+import Classes
+
 import numpy as np
 
 from astropy import units as u
@@ -283,3 +285,19 @@ def update_satellite_rotation(satellite, current_time):
 	new_angle = new_angle % 360
 
 	return new_angle, [True, t, degrees_of_rotation, aa, start_time, start_angle]
+
+
+
+def first_successfull_hit(debris : Classes.debris, satellite: Classes.satellite, net_mass, time_frame):
+
+	#We can only hit if the debris and satellite move in the opposite directions
+
+	x,y = orbit_to_position(satellite.orbit)
+
+
+
+
+	period_of_debris = debris.orbit.state.period
+
+	period_of_satellite = satellite.orbit.state.period
+
