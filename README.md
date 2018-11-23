@@ -6,7 +6,7 @@
 * seaborn
 
 ## Key-mapping
-### Simulatio
+### Simulation
 * D: Display or hide coordinates of objects
 * K: Show or hide the karman line
 * I: Zoom in
@@ -14,7 +14,7 @@
 * P: Pause simulation
 * Y: Toggle center of screen to be earth or satellite
 
-###Test-buttons
+### Test-buttons
 * ENTER: Shoot projectile from satellite
 * M: Make debris and shoot at it immediately
 * L: Apply impulse to debris 0.
