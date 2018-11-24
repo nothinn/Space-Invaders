@@ -374,7 +374,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 				collision_angle = aim_angle - debris_angle_flip
 
 				if collision_angle < -180:
-					collision_angle = -(collision%360)
+					collision_angle = -(collision_angle%360)
 				
 				if collision_angle < 10 and collision_angle > -10:
 					print("succes")
@@ -423,7 +423,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 					collision_angle = aim_angle - debris_angle_flip
 
 					if collision_angle < -180:
-						collision_angle = -(collision%360)
+						collision_angle = -(collision_angle%360)
 				
 					if collision_angle < 10 and collision_angle > -10:
 						print("succes")
@@ -480,7 +480,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 					collision_angle = aim_angle - debris_angle_flip
 
 					if collision_angle < -180:
-						collision_angle = -(collision%360)
+						collision_angle = -(collision_angle%360)
 				
 					if collision_angle < 10 and collision_angle > -10:
 						print("succes")
@@ -538,7 +538,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 					collision_angle = aim_angle - debris_angle_flip
 
 					if collision_angle < -180:
-						collision_angle = -(collision%360)
+						collision_angle = -(collision_angle%360)
 				
 					if collision_angle < 10 and collision_angle > -10:
 						print("succes")
