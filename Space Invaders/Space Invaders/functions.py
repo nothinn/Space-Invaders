@@ -326,7 +326,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 		print(nr_of_crossings)
 
 
-		for i in range(0, int(nr_of_crossings.value)*2):
+		for i in range(0, int(nr_of_crossings.value)*2): #searching at different samples - nyquist style amount of samples
 			start_time = (seek_time_unit/(int(nr_of_crossings.value)*2)) * i 
 			time_increments = seek_time_unit/(int(nr_of_crossings.value)*2)
 
@@ -353,7 +353,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 
 			slobe = dist2 - dist1 #a negative slope: the we seek a point that are in positive time direction.
 
-			if dist1 < 2000000 and slobe < 0:
+			if dist1 < 2000000 and slobe < 0: # see if this is a valid point already
 				print("succes")
 				#SAVE SUCCES
 				continue
@@ -387,11 +387,11 @@ def find_crossing_times(satellite, debris_list, seek_time):
 					print("Not here")
 					continue
 					#decide what to do with failure
-				else:
+				else: # sets intial parameters for gradient decent - binary search style
 					#Gradiant decent in posative direction
 					gradiant_diff *= 0.5
 					gradiant_time += gradiant_diff
-			else:
+			else: # test the other edge case
 				sat_orbit_copy = satellite.orbit.propagate(gradiant_time - gradiant_diff)
 				deb_orbit_copy = debris.orbit.propagate(gradiant_time - gradiant_diff)
 
@@ -419,13 +419,13 @@ def find_crossing_times(satellite, debris_list, seek_time):
 					print("Not here")
 					continue
 					#decide what to do with failure
-				else:
+				else:# sets intial parameters for gradient decent - binary search style
 					#Gradiant decent in negative direction
 					gradiant_diff *= 0.5
 					gradiant_time -= gradiant_diff
 
 			
-			while gradient_decent:
+			while gradient_decent: #Binary search style
 				sat_orbit_copy = satellite.orbit.propagate(gradiant_time)
 				deb_orbit_copy = debris.orbit.propagate(gradiant_time)
 
@@ -449,11 +449,11 @@ def find_crossing_times(satellite, debris_list, seek_time):
 					#SAVE SUCCES
 					break
 				
-				if slobe <= 0:
+				if slobe <= 0: # we move in positive time direction
 					gradiant_diff *= 0.5
 					gradiant_time += gradiant_diff
 
-				else:
+				else: # we move in negative time direction
 					gradiant_diff *= 0.5
 					gradiant_time -= gradiant_diff
 	
