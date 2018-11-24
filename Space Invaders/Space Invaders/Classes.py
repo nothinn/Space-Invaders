@@ -61,7 +61,10 @@ class debris(arcade.Sprite):
 		self.orbit = Orbit.from_vectors(Earth, rtest * u.km, vtest * u.m / u.s)
 
 
-
+	def set_vel_vector(self):
+		vel_from_orbit = self.orbit.state.v.to(u.m / u.s)
+		self.vel_vector[0] = vel_from_orbit[0].value
+		self.vel_vector[1] = vel_from_orbit[1].value
 
 
 	def give_impulse(self):
@@ -78,8 +81,9 @@ class debris(arcade.Sprite):
 		#We move the debris a certain time.
 		self.orbit = self.orbit.propagate(delta_time * u.s)
 		self.model_x, self.model_y = functions.orbit_to_position(self.orbit)
-		
+		self.set_vel_vector()
 		self.center_x, self.center_y = functions.get_canvas_pos(self.model_x, self.model_y, canvas_info)
+
 
 
 
@@ -126,6 +130,7 @@ class satellite(arcade.Sprite):
 		self.model_y = y
 		self.center_x = 300 #center is the postion on canvas
 		self.center_y = 300
+		self.vel_vector = [0, 0]
 		self.angle = 0
 		self.mass = 440 # kg - from new horizons
 		self.radius_to_thruster = 1.2 #m - distance from center of mass og new horizons to is rotation thruster
@@ -146,6 +151,12 @@ class satellite(arcade.Sprite):
 		v = [-3457, 6618, 2533]
 		rtest, vtest = functions.get_random_ellipse_orbit()
 		self.orbit = Orbit.from_vectors(Earth, rtest * u.km, vtest * u.m / u.s)
+		self.set_vel_vector()
+
+	def set_vel_vector(self):
+		vel_from_orbit = self.orbit.state.v.to(u.m / u.s)
+		self.vel_vector[0] = vel_from_orbit[0].value
+		self.vel_vector[1] = vel_from_orbit[1].value
 
 	def __eq__(self, other):
 		# equality metho for comapring satellite instance
@@ -172,6 +183,7 @@ class satellite(arcade.Sprite):
 		#We move the debris a certain time.
 		self.orbit = self.orbit.propagate(delta_time * u.s)
 		self.model_x, self.model_y = functions.orbit_to_position(self.orbit)
+		self.set_vel_vector()
 
 		self.center_x, self.center_y = functions.get_canvas_pos(self.model_x, self.model_y, canvas_info)
 	
