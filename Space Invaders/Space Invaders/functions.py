@@ -304,7 +304,7 @@ def orbit_direction(orbit):
 		res = -1
 	elif angle_difference < 0 and angle_difference > -180:
 		res = 1
-	elif angle_differnce <= 0:
+	elif angle_difference <= 0:
 		res = -1
 	else:
 		res = 1
