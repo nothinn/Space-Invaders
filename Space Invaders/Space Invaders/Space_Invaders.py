@@ -180,6 +180,10 @@ class MyGame(arcade.Window):
 		elif symbol == arcade.key.P: #Pause
 			if(self.update):
 				self.update = False
+				#The following was used for following was used for distance measurements
+				sx, sy = functions.orbit_to_position(self.satellite.orbit)
+				dx, dy = functions.orbit_to_position(self.debris_list[-1].orbit)
+				print(functions.distance_distance_two_objects(sx, sy, dx, dy))
 			else:
 				self.update = True
 

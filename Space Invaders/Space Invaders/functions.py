@@ -219,7 +219,7 @@ def get_random_ellipse_orbit():
 	G = 6.67408*10**-11 #Gravitational constant m^3*kg^-1*s^-2
 	M_e = 5.9722*10**24 #mass of earth kg 
 	cirular_abs_vel = math.sqrt((G*M_e) / (r_length*10**3))
-
+ 
 
 	ran_add_angle = random.uniform(-0.0125, 0.0125)*((r_length-Er)/200) #different amount of ellipticallity is allowed for different radiuses
 	ran_seed = random.uniform(-1.0, 1.0)
@@ -286,6 +286,9 @@ def update_satellite_rotation(satellite, current_time):
 
 	return new_angle, [True, t, degrees_of_rotation, aa, start_time, start_angle]
 
+def distance_distance_two_objects(ax, ay, bx, by):
+	return math.sqrt((bx-ax)**2 + (by-ay)**2)
+
 def orbit_direction(orbit):
 	initial_x, initial_y = orbit_to_position(orbit)
 	later_x, later_y = orbit_to_position(orbit.propagate(60 * u.s))
@@ -320,9 +323,137 @@ def find_crossing_times(satellite, debris_list, seek_time):
 		satellite_period = satellite.orbit.state.period
 
 		nr_of_crossings = seek_time_unit/debris_period + seek_time_unit/satellite_period
+		print(nr_of_crossings)
 
-		for i in range(0, int(nr_of_crossings)*2):
+
+		for i in range(0, int(nr_of_crossings.value)*2):
+			start_time = (seek_time_unit/(int(nr_of_crossings.value)*2)) * i 
+			time_increments = seek_time_unit/(int(nr_of_crossings.value)*2)
+
+			gradient_decent = True
+			gradiant_time = start_time
+			gradiant_diff = time_increments/2
+
+			#First we find slobe of the distance function at sample point
+			sat_orbit_copy = satellite.orbit.propagate(gradiant_time)
+			deb_orbit_copy = debris.orbit.propagate(gradiant_time)
+
+			sat_x, sat_y = orbit_to_position(sat_orbit_copy)
+			deb_x, deb_y = orbit_to_position(deb_orbit_copy)
+
+			dist1 = distance_distance_two_objects(sat_x, sat_y, deb_x, deb_y)
+
+			sat_orbit_copy = satellite.orbit.propagate(gradiant_time + 0.1*u.s)
+			deb_orbit_copy = debris.orbit.propagate(gradiant_time + 0.1*u.s)
+
+			sat_x, sat_y = orbit_to_position(sat_orbit_copy)
+			deb_x, deb_y = orbit_to_position(deb_orbit_copy)
+
+			dist2 = distance_distance_two_objects(sat_x, sat_y, deb_x, deb_y)
+
+			slobe = dist2 - dist1 #a negative slope: the we seek a point that are in positive time direction.
+
+			if dist1 < 2000000 and slobe < 0:
+				print("succes")
+				#SAVE SUCCES
+				continue
+
+			#We test edge case for this samples search interval
+			if slobe <= 0: 
+				sat_orbit_copy = satellite.orbit.propagate(gradiant_time + gradiant_diff)
+				deb_orbit_copy = debris.orbit.propagate(gradiant_time + gradiant_diff)
+
+				sat_x, sat_y = orbit_to_position(sat_orbit_copy)
+				deb_x, deb_y = orbit_to_position(deb_orbit_copy)
+
+				dist1 = distance_distance_two_objects(sat_x, sat_y, deb_x, deb_y)
+
+				sat_orbit_copy = satellite.orbit.propagate(gradiant_time + gradiant_diff + 0.1*u.s)
+				deb_orbit_copy = debris.orbit.propagate(gradiant_time + gradiant_diff + 0.1*u.s)
+
+				sat_x, sat_y = orbit_to_position(sat_orbit_copy)
+				deb_x, deb_y = orbit_to_position(deb_orbit_copy)
+
+				dist2 = distance_distance_two_objects(sat_x, sat_y, deb_x, deb_y)
+
+				slobe = dist2 - dist1
+
+				if dist1 < 2000000 and slobe < 0:
+					print("succes")
+					#SAVE SUCCES
+					continue
+
+				if slobe <= 0:
+					print("Not here")
+					continue
+					#decide what to do with failure
+				else:
+					#Gradiant decent in posative direction
+					gradiant_diff *= 0.5
+					gradiant_time += gradiant_diff
+			else:
+				sat_orbit_copy = satellite.orbit.propagate(gradiant_time - gradiant_diff)
+				deb_orbit_copy = debris.orbit.propagate(gradiant_time - gradiant_diff)
+
+				sat_x, sat_y = orbit_to_position(sat_orbit_copy)
+				deb_x, deb_y = orbit_to_position(deb_orbit_copy)
+
+				dist1 = distance_distance_two_objects(sat_x, sat_y, deb_x, deb_y)
+
+				sat_orbit_copy = satellite.orbit.propagate(gradiant_time - gradiant_diff + 0.1*u.s)
+				deb_orbit_copy = debris.orbit.propagate(gradiant_time - gradiant_diff + 0.1*u.s)
+
+				sat_x, sat_y = orbit_to_position(sat_orbit_copy)
+				deb_x, deb_y = orbit_to_position(deb_orbit_copy)
+
+				dist2 = distance_distance_two_objects(sat_x, sat_y, deb_x, deb_y)
+
+				slobe = dist2 - dist1
+
+				if dist1 < 2000000 and slobe < 0:
+					print("succes")
+					#SAVE SUCCES
+					continue
+
+				if slobe > 0:
+					print("Not here")
+					continue
+					#decide what to do with failure
+				else:
+					#Gradiant decent in negative direction
+					gradiant_diff *= 0.5
+					gradiant_time -= gradiant_diff
+
 			
+			while gradient_decent:
+				sat_orbit_copy = satellite.orbit.propagate(gradiant_time)
+				deb_orbit_copy = debris.orbit.propagate(gradiant_time)
 
-	hej = nr_of_crossings.value
-	sven = 2
+				sat_x, sat_y = orbit_to_position(sat_orbit_copy)
+				deb_x, deb_y = orbit_to_position(deb_orbit_copy)
+
+				dist1 = distance_distance_two_objects(sat_x, sat_y, deb_x, deb_y)
+
+				sat_orbit_copy = satellite.orbit.propagate(gradiant_time + 0.1*u.s)
+				deb_orbit_copy = debris.orbit.propagate(gradiant_time + 0.1*u.s)
+
+				sat_x, sat_y = orbit_to_position(sat_orbit_copy)
+				deb_x, deb_y = orbit_to_position(deb_orbit_copy)
+
+				dist2 = distance_distance_two_objects(sat_x, sat_y, deb_x, deb_y)
+				
+				slobe = dist2 - dist1
+
+				if dist1 < 2000000 and slobe < 0:
+					print("succes")
+					#SAVE SUCCES
+					break
+				
+				if slobe <= 0:
+					gradiant_diff *= 0.5
+					gradiant_time += gradiant_diff
+
+				else:
+					gradiant_diff *= 0.5
+					gradiant_time -= gradiant_diff
+	
