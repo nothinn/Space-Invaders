@@ -113,12 +113,13 @@ def get_net_angle_immediate(abs_vel_net, satellite, debris):
 	'''rotated_aim_2 = math.atan2(((pos_x_debris_after_rotation**2) * abs_vel_debris - math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2) * pos_y_debris_after_rotation)/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2), 
                                -((abs_vel_debris * pos_y_debris_after_rotation + math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2))*pos_x_debris_after_rotation/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2)))
     '''
+	collision_time = pos_x_debris_after_rotation / (abs_vel_net * math.cos(rotated_aim_1)) # the time from fireing to the collision in seconds
 
     # get the angle in the non-roted system
 	aim_1 = math.degrees(rotated_aim_1) + degrees_of_rotation
     #aim_2 = math.degrees(rotated_aim_2) + degrees_of_rotation
 
-	return aim_1 #, aim_2
+	return aim_1, collision_time #, aim_2
 
 
 
