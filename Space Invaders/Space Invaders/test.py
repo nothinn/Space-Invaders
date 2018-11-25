@@ -1,4 +1,5 @@
 import functions
+import Classes
 
 import math
 
@@ -48,9 +49,12 @@ def main():
 	rtest, vtest = functions.get_random_ellipse_orbit()
 	ss_orig = Orbit.from_vectors(Earth, r * u.km, v * u.m / u.s)
 
-	print(optimal_impact(ss_orig))
+	#print(optimal_impact(ss_orig))
 
-	heatmap_orbit(ss_orig,100,30)
+	#heatmap_orbit(ss_orig,100,30)
+
+
+	heatmap_debris_net()
 
 
 
@@ -409,3 +413,104 @@ def heatmap_orbit(ss_orig,xticks,yticks):
 	with myFile:
 		writer = csv.writer(myFile)
 		writer.writerows(myData)
+
+
+def heatmap_debris_net():
+	earth_radius = 6371 *u.km
+	#Create an orbit object, which a debris is.
+	r = [-6045, -3490, 0]
+	v = [-3457, 6618, 0]
+	rtest, vtest = functions.get_random_ellipse_orbit()
+	ss_orig = Orbit.from_vectors(Earth, r * u.km, v * u.m / u.s)
+
+	#Generate a piece of debris to test on
+	debris_orig = Classes.debris(0, 0, [0,0],"Images/debris.png", [0, 705*10**3, 1])
+
+	debris_orig.orbit = ss_orig
+
+	original_periapsis = ((debris_orig.orbit.r_p - earth_radius).value)
+
+	myData = []
+
+	ylabels = []
+	xlabels = []
+
+	#The weight here is in grams
+	for weight in range(10,100,5):
+
+		print(weight)
+
+		dataLine = []
+
+		ylabels.append(weight)
+
+		
+
+		#We test velocities in the range of -1.5 -> 10 km/s
+		for velocity in range(-5000, 5000,500):
+			xlabels.append(velocity)
+
+			#Create a net
+			pos = functions.orbit_to_position(debris_orig.orbit)
+
+			#We want to hit it straight on, so we take the inverse direction
+			vector = functions.get_vector_orbit(debris_orig.orbit) * (-1)
+
+			#Normalize vector so we can multiply by the velocity
+			vector = vector / (np.sqrt(vector[0]**2 + vector[1]**2))
+			vector *= (velocity * u.m / u.s)
+
+
+			net = Classes.projectile(1,pos[0],pos[1],vector,[0,0,0,0,0], mass= weight*u.g)
+			vectorx, vectory = functions.velocity_change(net, debris_orig)
+
+			#Set the vector into an array. We make sure they have the same units.
+			vector_change = [vectorx.value,vectory.to(vectorx.unit).value, 0]*vectorx.unit
+
+
+			#Apply impulse
+			new_orbit = functions.orbit_impulse(debris_orig.orbit,vector_change)
+
+
+			#Save distance
+			dataLine.append((new_orbit.r_p - earth_radius).value)
+
+		myData.append(dataLine)
+
+	ax = sns.heatmap(myData, linewidth=0,cmap="RdYlGn_r", annot = True, fmt="10.0f", cbar_kws={'label': 'Distance to periapsis minus radius of earth [km]'})
+
+	xticks = ax.get_xticks()
+
+	xlabels2 = ax.get_xticklabels()
+
+	for i, value in enumerate(xticks):
+		#divide by 1000 to get in km
+		xlabels2[i] = str(round(float(xlabels[int(value)]/1000), 1))
+	ax.set_xticklabels(xlabels2)
+
+
+	yticks = ax.get_yticks()
+
+	ylabels2 = ax.get_yticklabels()
+
+	for i, value in enumerate(yticks):
+		ylabels2[i] = str(round(float(ylabels[int(value)]), 1))
+	ax.set_yticklabels(ylabels2)
+
+
+	ax.set_xlabel("Velocity of projectile [km/s]")
+	ax.set_ylabel("Weight of projectile [g]")
+
+
+	for tick in ax.get_xticklabels():
+		tick.set_rotation(45)
+
+
+	for tick in ax.get_yticklabels():
+		tick.set_rotation(0)
+
+
+	plt2.show()
+
+
+	True
