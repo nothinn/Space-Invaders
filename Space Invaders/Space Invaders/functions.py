@@ -315,6 +315,9 @@ def orbit_direction(orbit):
 
 def find_crossing_times(satellite, debris_list, seek_time):
 	# start by figuring out of satellite are moving clockwise or counter clockwise
+	far_distance = 3000000
+	close_distance = 2000000
+
 	satelite_rot_dir = orbit_direction(satellite.orbit)
 	result_list = list()
 	index_count = -1
@@ -360,7 +363,22 @@ def find_crossing_times(satellite, debris_list, seek_time):
 
 			slobe = dist2 - dist1 #a negative slope: the we seek a point that are in positive time direction.
 
-			if dist1 < 2000000 and slobe < 0: # see if this is a valid point already
+			if dist1 < far_distance and slobe < 0: # see if this is a valid point already
+				j = 0
+				if dist1 < close_distance: #we are too close to get good angle
+					while True:
+						j += 1
+						sat_orbit_copy = satellite.orbit.propagate(gradiant_time - j*1*u.s)
+						deb_orbit_copy = debris.orbit.propagate(gradiant_time - j*1*u.s)
+
+						sat_x, sat_y = orbit_to_position(sat_orbit_copy)
+						deb_x, deb_y = orbit_to_position(deb_orbit_copy)
+
+						dist1 = distance_distance_two_objects(sat_x, sat_y, deb_x, deb_y)
+
+						if dist1 > close_distance:
+							break
+				
 				satellite_temp = satellite
 				debris_temp = debris
 
@@ -384,7 +402,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 				
 				if collision_angle < 15 and collision_angle > -15:
 					print("succes")
-					result_list[index_count].append((gradiant_time, collision_angle, aim_angle))
+					result_list[index_count].append((gradiant_time - j*1*u.s , collision_angle, aim_angle))
 				else:
 					print("failed")
 					result_list[index_count].append(False)
@@ -411,7 +429,21 @@ def find_crossing_times(satellite, debris_list, seek_time):
 
 				slobe = dist2 - dist1
 
-				if dist1 < 2000000 and slobe < 0:
+				if dist1 < far_distance and slobe < 0:
+					j = 0
+					if dist1 < close_distance: #we are too close to get good angle
+						while True:
+							j += 1
+							sat_orbit_copy = satellite.orbit.propagate(gradiant_time + gradiant_diff - j*1*u.s)
+							deb_orbit_copy = debris.orbit.propagate(gradiant_time + gradiant_diff - j*1*u.s)
+
+							sat_x, sat_y = orbit_to_position(sat_orbit_copy)
+							deb_x, deb_y = orbit_to_position(deb_orbit_copy)
+
+							dist1 = distance_distance_two_objects(sat_x, sat_y, deb_x, deb_y)
+
+							if dist1 > close_distance:
+								break
 					satellite_temp = satellite
 					debris_temp = debris
 
@@ -435,7 +467,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 				
 					if collision_angle < 15 and collision_angle > -15:
 						print("succes")
-						result_list[index_count].append((gradiant_time + gradiant_diff, collision_angle, aim_angle))
+						result_list[index_count].append((gradiant_time + gradiant_diff - j*1*u.s, collision_angle, aim_angle))
 						#SAVE SUCCES
 					else:
 						print("failed")
@@ -469,7 +501,21 @@ def find_crossing_times(satellite, debris_list, seek_time):
 
 				slobe = dist2 - dist1
 
-				if dist1 < 2000000 and slobe < 0:
+				if dist1 < far_distance and slobe < 0:
+					j = 0
+					if dist1 < close_distance: #we are too close to get good angle
+						while True:
+							j += 1
+							sat_orbit_copy = satellite.orbit.propagate(gradiant_time - gradiant_diff - j*1*u.s)
+							deb_orbit_copy = debris.orbit.propagate(gradiant_time - gradiant_diff - j*1*u.s)
+
+							sat_x, sat_y = orbit_to_position(sat_orbit_copy)
+							deb_x, deb_y = orbit_to_position(deb_orbit_copy)
+
+							dist1 = distance_distance_two_objects(sat_x, sat_y, deb_x, deb_y)
+
+							if dist1 > close_distance:
+								break
 					satellite_temp = satellite
 					debris_temp = debris
 
@@ -493,7 +539,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 				
 					if collision_angle < 15 and collision_angle > -15:
 						print("succes")
-						result_list[index_count].append((gradiant_time - gradiant_diff, collision_angle, aim_angle))
+						result_list[index_count].append((gradiant_time - gradiant_diff - j*1*u.s, collision_angle, aim_angle))
 					#SAVE SUCCES
 						
 					else:
@@ -530,7 +576,21 @@ def find_crossing_times(satellite, debris_list, seek_time):
 				
 				slobe = dist2 - dist1
 
-				if dist1 < 2000000 and slobe < 0:
+				if dist1 < far_distance and slobe < 0:
+					j = 0
+					if dist1 < close_distance: #we are too close to get good angle
+						while True:
+							j += 1
+							sat_orbit_copy = satellite.orbit.propagate(gradiant_time - j*1*u.s)
+							deb_orbit_copy = debris.orbit.propagate(gradiant_time - j*1*u.s)
+
+							sat_x, sat_y = orbit_to_position(sat_orbit_copy)
+							deb_x, deb_y = orbit_to_position(deb_orbit_copy)
+
+							dist1 = distance_distance_two_objects(sat_x, sat_y, deb_x, deb_y)
+
+							if dist1 > close_distance:
+								break
 					satellite_temp = satellite
 					debris_temp = debris
 
@@ -554,7 +614,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 				
 					if collision_angle < 15 and collision_angle > -15:
 						print("succes")
-						result_list[index_count].append((gradiant_time, collision_angle, aim_angle))
+						result_list[index_count].append((gradiant_time - j*1*u.s, collision_angle, aim_angle))
 					#SAVE SUCCES
 						break
 					else:
