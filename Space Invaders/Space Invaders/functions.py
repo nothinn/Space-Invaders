@@ -314,11 +314,15 @@ def orbit_direction(orbit):
 def find_crossing_times(satellite, debris_list, seek_time):
 	# start by figuring out of satellite are moving clockwise or counter clockwise
 	satelite_rot_dir = orbit_direction(satellite.orbit)
-	
+	result_list = list()
+	index_count = -1
 	for debris in debris_list: # we are testing for all debris
 		if satelite_rot_dir == orbit_direction(debris.orbit): # if the satelite travels in same direction we wont have enough impulse and we wont calculate on this debris.
+			result_list.append(False)
+			index_count += 1
 			continue
-
+		result_list.append(list())
+		index_count += 1
 		seek_time_unit = seek_time * u.s
 		debris_period = debris.orbit.state.period
 		satellite_period = satellite.orbit.state.period
@@ -378,8 +382,10 @@ def find_crossing_times(satellite, debris_list, seek_time):
 				
 				if collision_angle < 15 and collision_angle > -15:
 					print("succes")
+					result_list[index_count].append((gradiant_time, collision_angle, aim_angle))
 				else:
-						print("failed")
+					print("failed")
+					result_list[index_count].append(False)
 				#SAVE SUCCES
 				continue
 
@@ -427,11 +433,12 @@ def find_crossing_times(satellite, debris_list, seek_time):
 				
 					if collision_angle < 15 and collision_angle > -15:
 						print("succes")
-					
+						result_list[index_count].append((gradiant_time + gradiant_diff, collision_angle, aim_angle))
 						#SAVE SUCCES
 					else:
 						print("failed")
-						continue
+						result_list[index_count].append(False)
+					continue
 
 				if slobe <= 0:
 					print("Not here")
@@ -484,10 +491,13 @@ def find_crossing_times(satellite, debris_list, seek_time):
 				
 					if collision_angle < 15 and collision_angle > -15:
 						print("succes")
+						result_list[index_count].append((gradiant_time - gradiant_diff, collision_angle, aim_angle))
 					#SAVE SUCCES
-						continue
+						
 					else:
 						print("failed")
+						result_list[index_count].append(False)
+					continue
 
 				if slobe > 0:
 					print("Not here")
@@ -542,10 +552,12 @@ def find_crossing_times(satellite, debris_list, seek_time):
 				
 					if collision_angle < 15 and collision_angle > -15:
 						print("succes")
+						result_list[index_count].append((gradiant_time, collision_angle, aim_angle))
 					#SAVE SUCCES
 						break
 					else:
 						print("failed")
+						result_list[index_count].append(False)
 						break
 				
 				if slobe <= 0: # we move in positive time direction
@@ -555,4 +567,6 @@ def find_crossing_times(satellite, debris_list, seek_time):
 				else: # we move in negative time direction
 					gradiant_diff *= 0.5
 					gradiant_time -= gradiant_diff
+
+	print(result_list)
 	
