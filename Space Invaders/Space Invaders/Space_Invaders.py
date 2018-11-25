@@ -187,6 +187,10 @@ class MyGame(arcade.Window):
 		elif symbol == arcade.key.P: 
 			if(self.update):
 				self.update = False
+				#The following was used for following was used for distance measurements
+				sx, sy = functions.orbit_to_position(self.satellite.orbit)
+				dx, dy = functions.orbit_to_position(self.debris_list[-1].orbit)
+				print(functions.distance_distance_two_objects(sx, sy, dx, dy))
 			else:
 				self.update = True
 
@@ -197,6 +201,9 @@ class MyGame(arcade.Window):
 		#Toggle center of screen to be between earth and satellite
 		elif symbol == arcade.key.Y:
 			self.center_option = not self.center_option
+
+		elif symbol == arcade.key.T:
+			functions.find_crossing_times(self.satellite, self.debris_list, 86400)
 
 	
 	def on_key_release(self, symbol, modifiers):

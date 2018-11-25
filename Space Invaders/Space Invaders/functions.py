@@ -14,6 +14,8 @@ from poliastro.maneuver import Maneuver
 
 from poliastro.plotting import plot
 
+from astropy import units as u
+
 def collision(projectile, debris):
 
 	if abs(projectile.center_x - debris.center_x) < 10:
@@ -113,12 +115,13 @@ def get_net_angle_immediate(abs_vel_net, satellite, debris):
 	'''rotated_aim_2 = math.atan2(((pos_x_debris_after_rotation**2) * abs_vel_debris - math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2) * pos_y_debris_after_rotation)/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2), 
                                -((abs_vel_debris * pos_y_debris_after_rotation + math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2))*pos_x_debris_after_rotation/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2)))
     '''
+	collision_time = pos_x_debris_after_rotation / (abs_vel_net * math.cos(rotated_aim_1)) # the time from fireing to the collision in seconds
 
     # get the angle in the non-roted system
 	aim_1 = math.degrees(rotated_aim_1) + degrees_of_rotation
     #aim_2 = math.degrees(rotated_aim_2) + degrees_of_rotation
 
-	return aim_1 #, aim_2
+	return aim_1%360, collision_time #, aim_2
 
 
 
@@ -219,7 +222,7 @@ def get_random_ellipse_orbit():
 	G = 6.67408*10**-11 #Gravitational constant m^3*kg^-1*s^-2
 	M_e = 5.9722*10**24 #mass of earth kg 
 	cirular_abs_vel = math.sqrt((G*M_e) / (r_length*10**3))
-
+ 
 
 	ran_add_angle = random.uniform(-0.0125, 0.0125)*((r_length-Er)/200) #different amount of ellipticallity is allowed for different radiuses
 	ran_seed = random.uniform(-1.0, 1.0)
@@ -286,18 +289,286 @@ def update_satellite_rotation(satellite, current_time):
 
 	return new_angle, [True, t, degrees_of_rotation, aa, start_time, start_angle]
 
+def distance_distance_two_objects(ax, ay, bx, by):
+	return math.sqrt((bx-ax)**2 + (by-ay)**2)
+
+def orbit_direction(orbit):
+	initial_x, initial_y = orbit_to_position(orbit)
+	later_x, later_y = orbit_to_position(orbit.propagate(60 * u.s))
+
+	initial_angle = vec_to_angle_2d(initial_x, initial_y)
+	later_angle = vec_to_angle_2d(later_x, later_y)
+
+	angle_difference = (later_angle%360) - (initial_angle%360) 
+
+	# we assume that all periods are well above 30min thats means that we can check the boundery condition as below
+	if angle_difference >= 0 and angle_difference < 180:
+		res = -1
+	elif angle_difference < 0 and angle_difference > -180:
+		res = 1
+	elif angle_difference <= 0:
+		res = -1
+	else:
+		res = 1
+	
+	return res #-1 counter clockwise, 1: clockwise
+
+def find_crossing_times(satellite, debris_list, seek_time):
+	# start by figuring out of satellite are moving clockwise or counter clockwise
+	satelite_rot_dir = orbit_direction(satellite.orbit)
+	result_list = list()
+	index_count = -1
+	for debris in debris_list: # we are testing for all debris
+		if satelite_rot_dir == orbit_direction(debris.orbit): # if the satelite travels in same direction we wont have enough impulse and we wont calculate on this debris.
+			result_list.append(False)
+			index_count += 1
+			continue
+		result_list.append(list())
+		index_count += 1
+		seek_time_unit = seek_time * u.s
+		debris_period = debris.orbit.state.period
+		satellite_period = satellite.orbit.state.period
+
+		nr_of_crossings = seek_time_unit/debris_period + seek_time_unit/satellite_period
+		print(nr_of_crossings)
 
 
-def first_successfull_hit(debris : Classes.debris, satellite: Classes.satellite, net_mass, time_frame):
+		for i in range(0, int(nr_of_crossings.value)*2): #searching at different samples - nyquist style amount of samples
+			start_time = (seek_time_unit/(int(nr_of_crossings.value)*2)) * i 
+			time_increments = seek_time_unit/(int(nr_of_crossings.value)*2)
 
-	#We can only hit if the debris and satellite move in the opposite directions
+			gradient_decent = True
+			gradiant_time = start_time
+			gradiant_diff = time_increments/2
 
-	x,y = orbit_to_position(satellite.orbit)
+			#First we find slobe of the distance function at sample point
+			sat_orbit_copy = satellite.orbit.propagate(gradiant_time)
+			deb_orbit_copy = debris.orbit.propagate(gradiant_time)
 
+			sat_x, sat_y = orbit_to_position(sat_orbit_copy)
+			deb_x, deb_y = orbit_to_position(deb_orbit_copy)
 
+			dist1 = distance_distance_two_objects(sat_x, sat_y, deb_x, deb_y)
 
+			sat_orbit_copy = satellite.orbit.propagate(gradiant_time + 0.1*u.s)
+			deb_orbit_copy = debris.orbit.propagate(gradiant_time + 0.1*u.s)
 
-	period_of_debris = debris.orbit.state.period
+			sat_x, sat_y = orbit_to_position(sat_orbit_copy)
+			deb_x, deb_y = orbit_to_position(deb_orbit_copy)
 
-	period_of_satellite = satellite.orbit.state.period
+			dist2 = distance_distance_two_objects(sat_x, sat_y, deb_x, deb_y)
 
+			slobe = dist2 - dist1 #a negative slope: the we seek a point that are in positive time direction.
+
+			if dist1 < 2000000 and slobe < 0: # see if this is a valid point already
+				satellite_temp = satellite
+				debris_temp = debris
+
+				satellite_temp.orbit = sat_orbit_copy
+				debris_temp.orbit = deb_orbit_copy
+
+				satellite_temp.set_vel_vector()
+				debris_temp.set_vel_vector()
+
+				aim_angle, time_to_collision = get_net_angle_immediate(math.sqrt(satellite_temp.vel_vector[0]**2 + satellite_temp.vel_vector[1]**2), satellite_temp, debris_temp)
+
+				debris_temp.orbit.propagate(time_to_collision * u.s)
+				debris_temp.set_vel_vector()
+
+				debris_angle_flip = (vec_to_angle_2d(debris_temp.vel_vector[0], debris_temp.vel_vector[1]) + 180)%360
+
+				collision_angle = aim_angle - debris_angle_flip
+
+				if collision_angle < -180:
+					collision_angle = -(collision_angle%360)
+				
+				if collision_angle < 15 and collision_angle > -15:
+					print("succes")
+					result_list[index_count].append((gradiant_time, collision_angle, aim_angle))
+				else:
+					print("failed")
+					result_list[index_count].append(False)
+				#SAVE SUCCES
+				continue
+
+			#We test edge case for this samples search interval
+			if slobe <= 0: 
+				sat_orbit_copy = satellite.orbit.propagate(gradiant_time + gradiant_diff)
+				deb_orbit_copy = debris.orbit.propagate(gradiant_time + gradiant_diff)
+
+				sat_x, sat_y = orbit_to_position(sat_orbit_copy)
+				deb_x, deb_y = orbit_to_position(deb_orbit_copy)
+
+				dist1 = distance_distance_two_objects(sat_x, sat_y, deb_x, deb_y)
+
+				sat_orbit_copy = satellite.orbit.propagate(gradiant_time + gradiant_diff + 0.1*u.s)
+				deb_orbit_copy = debris.orbit.propagate(gradiant_time + gradiant_diff + 0.1*u.s)
+
+				sat_x, sat_y = orbit_to_position(sat_orbit_copy)
+				deb_x, deb_y = orbit_to_position(deb_orbit_copy)
+
+				dist2 = distance_distance_two_objects(sat_x, sat_y, deb_x, deb_y)
+
+				slobe = dist2 - dist1
+
+				if dist1 < 2000000 and slobe < 0:
+					satellite_temp = satellite
+					debris_temp = debris
+
+					satellite_temp.orbit = sat_orbit_copy
+					debris_temp.orbit = deb_orbit_copy
+
+					satellite_temp.set_vel_vector()
+					debris_temp.set_vel_vector()
+
+					aim_angle, time_to_collision = get_net_angle_immediate(math.sqrt(satellite_temp.vel_vector[0]**2 + satellite_temp.vel_vector[1]**2), satellite_temp, debris_temp)
+
+					debris_temp.orbit.propagate(time_to_collision * u.s)
+					debris_temp.set_vel_vector()
+
+					debris_angle_flip = (vec_to_angle_2d(debris_temp.vel_vector[0], debris_temp.vel_vector[1]) + 180)%360
+
+					collision_angle = aim_angle - debris_angle_flip
+
+					if collision_angle < -180:
+						collision_angle = -(collision_angle%360)
+				
+					if collision_angle < 15 and collision_angle > -15:
+						print("succes")
+						result_list[index_count].append((gradiant_time + gradiant_diff, collision_angle, aim_angle))
+						#SAVE SUCCES
+					else:
+						print("failed")
+						result_list[index_count].append(False)
+					continue
+
+				if slobe <= 0:
+					print("Not here")
+					continue
+					#decide what to do with failure
+				else: # sets intial parameters for gradient decent - binary search style
+					#Gradiant decent in posative direction
+					gradiant_diff *= 0.5
+					gradiant_time += gradiant_diff
+			else: # test the other edge case
+				sat_orbit_copy = satellite.orbit.propagate(gradiant_time - gradiant_diff)
+				deb_orbit_copy = debris.orbit.propagate(gradiant_time - gradiant_diff)
+
+				sat_x, sat_y = orbit_to_position(sat_orbit_copy)
+				deb_x, deb_y = orbit_to_position(deb_orbit_copy)
+
+				dist1 = distance_distance_two_objects(sat_x, sat_y, deb_x, deb_y)
+
+				sat_orbit_copy = satellite.orbit.propagate(gradiant_time - gradiant_diff + 0.1*u.s)
+				deb_orbit_copy = debris.orbit.propagate(gradiant_time - gradiant_diff + 0.1*u.s)
+
+				sat_x, sat_y = orbit_to_position(sat_orbit_copy)
+				deb_x, deb_y = orbit_to_position(deb_orbit_copy)
+
+				dist2 = distance_distance_two_objects(sat_x, sat_y, deb_x, deb_y)
+
+				slobe = dist2 - dist1
+
+				if dist1 < 2000000 and slobe < 0:
+					satellite_temp = satellite
+					debris_temp = debris
+
+					satellite_temp.orbit = sat_orbit_copy
+					debris_temp.orbit = deb_orbit_copy
+
+					satellite_temp.set_vel_vector()
+					debris_temp.set_vel_vector()
+
+					aim_angle, time_to_collision = get_net_angle_immediate(math.sqrt(satellite_temp.vel_vector[0]**2 + satellite_temp.vel_vector[1]**2), satellite_temp, debris_temp)
+
+					debris_temp.orbit.propagate(time_to_collision * u.s)
+					debris_temp.set_vel_vector()
+
+					debris_angle_flip = (vec_to_angle_2d(debris_temp.vel_vector[0], debris_temp.vel_vector[1]) + 180)%360
+
+					collision_angle = aim_angle - debris_angle_flip
+
+					if collision_angle < -180:
+						collision_angle = -(collision_angle%360)
+				
+					if collision_angle < 15 and collision_angle > -15:
+						print("succes")
+						result_list[index_count].append((gradiant_time - gradiant_diff, collision_angle, aim_angle))
+					#SAVE SUCCES
+						
+					else:
+						print("failed")
+						result_list[index_count].append(False)
+					continue
+
+				if slobe > 0:
+					print("Not here")
+					continue
+					#decide what to do with failure
+				else:# sets intial parameters for gradient decent - binary search style
+					#Gradiant decent in negative direction
+					gradiant_diff *= 0.5
+					gradiant_time -= gradiant_diff
+
+			
+			while gradient_decent: #Binary search style
+				sat_orbit_copy = satellite.orbit.propagate(gradiant_time)
+				deb_orbit_copy = debris.orbit.propagate(gradiant_time)
+
+				sat_x, sat_y = orbit_to_position(sat_orbit_copy)
+				deb_x, deb_y = orbit_to_position(deb_orbit_copy)
+
+				dist1 = distance_distance_two_objects(sat_x, sat_y, deb_x, deb_y)
+
+				sat_orbit_copy = satellite.orbit.propagate(gradiant_time + 0.1*u.s)
+				deb_orbit_copy = debris.orbit.propagate(gradiant_time + 0.1*u.s)
+
+				sat_x, sat_y = orbit_to_position(sat_orbit_copy)
+				deb_x, deb_y = orbit_to_position(deb_orbit_copy)
+
+				dist2 = distance_distance_two_objects(sat_x, sat_y, deb_x, deb_y)
+				
+				slobe = dist2 - dist1
+
+				if dist1 < 2000000 and slobe < 0:
+					satellite_temp = satellite
+					debris_temp = debris
+
+					satellite_temp.orbit = sat_orbit_copy
+					debris_temp.orbit = deb_orbit_copy
+
+					satellite_temp.set_vel_vector()
+					debris_temp.set_vel_vector()
+
+					aim_angle, time_to_collision = get_net_angle_immediate(math.sqrt(satellite_temp.vel_vector[0]**2 + satellite_temp.vel_vector[1]**2), satellite_temp, debris_temp)
+
+					debris_temp.orbit.propagate(time_to_collision * u.s)
+					debris_temp.set_vel_vector()
+
+					debris_angle_flip = (vec_to_angle_2d(debris_temp.vel_vector[0], debris_temp.vel_vector[1]) + 180)%360
+
+					collision_angle = aim_angle - debris_angle_flip
+
+					if collision_angle < -180:
+						collision_angle = -(collision_angle%360)
+				
+					if collision_angle < 15 and collision_angle > -15:
+						print("succes")
+						result_list[index_count].append((gradiant_time, collision_angle, aim_angle))
+					#SAVE SUCCES
+						break
+					else:
+						print("failed")
+						result_list[index_count].append(False)
+						break
+				
+				if slobe <= 0: # we move in positive time direction
+					gradiant_diff *= 0.5
+					gradiant_time += gradiant_diff
+
+				else: # we move in negative time direction
+					gradiant_diff *= 0.5
+					gradiant_time -= gradiant_diff
+
+	print(result_list)
+	
