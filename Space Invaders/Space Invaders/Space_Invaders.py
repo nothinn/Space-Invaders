@@ -9,12 +9,15 @@ import test
 
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 600
-TIME_MULTIPLIER = 200
+
 
 
 class MyGame(arcade.Window):
 	def __init__(self, width, height):
 		super().__init__(width,height)
+
+		self.TIME_MULTIPLIER = 200
+
 		arcade.set_background_color(arcade.color.AMAZON)
 
 		#Set path directory
@@ -196,8 +199,20 @@ class MyGame(arcade.Window):
 		elif symbol == arcade.key.Y:
 			self.center_option = not self.center_option
 
+		# Runs the position/time seek function
 		elif symbol == arcade.key.T:
 			print(functions.find_crossing_times(self.satellite, self.debris_list, 86400))
+
+
+		#Speed up the simulation
+		elif symbol == arcade.key.NUM_ADD:
+			self.TIME_MULTIPLIER += 10
+
+		#Slow down the simulation
+		elif symbol == symbol == arcade.key.NUM_SUBTRACT:
+			self.TIME_MULTIPLIER -= 10
+
+
 
 	
 	def on_key_release(self, symbol, modifiers):
@@ -278,7 +293,7 @@ class MyGame(arcade.Window):
 
 	def update(self, delta_time):
 		if(self.update):
-			self.total_time += delta_time * TIME_MULTIPLIER
+			self.total_time += delta_time * self.TIME_MULTIPLIER
 			if self.center_option:
 				self.canvas_info[0] = self.satellite.model_x
 				self.canvas_info[1] = self.satellite.model_y
@@ -292,19 +307,19 @@ class MyGame(arcade.Window):
 				self.sprites_list.append(shot)
 				self.satellite.time_to_shoot = float("inf")
 
-			self.satellite.update(delta_time*TIME_MULTIPLIER, self.canvas_info, self.total_time)
+			self.satellite.update(delta_time*self.TIME_MULTIPLIER, self.canvas_info, self.total_time)
 			for member in self.projectile_list:
-				member.update(delta_time*TIME_MULTIPLIER, self.canvas_info)
+				member.update(delta_time*self.TIME_MULTIPLIER, self.canvas_info)
 
 			for member in self.debris_list:
-				member.update(delta_time*TIME_MULTIPLIER, self.canvas_info)
+				member.update(delta_time*self.TIME_MULTIPLIER, self.canvas_info)
 			for member in self.netted_debris_list:
-				member.update(delta_time*TIME_MULTIPLIER, self.canvas_info)
+				member.update(delta_time*self.TIME_MULTIPLIER, self.canvas_info)
 				if abs(member.debris.center_x) > 1000 or abs(member.debris.center_y) > 1000:
 					member.kill()
 					print("Killed netted debris")
 					self.netted_debris_list.remove(member)
-			self.earth.update(delta_time*TIME_MULTIPLIER, self.canvas_info)
+			self.earth.update(delta_time*self.TIME_MULTIPLIER, self.canvas_info)
 
 			#Test for collisions:
 			for idx, projectile in enumerate(self.projectile_list):
