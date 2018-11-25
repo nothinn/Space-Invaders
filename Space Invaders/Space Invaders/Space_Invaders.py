@@ -49,6 +49,8 @@ class MyGame(arcade.Window):
 		self.display_karman_line = True
 		self.display_coordinates = False
 		self.update = True
+		#Used to check if time was slowed last
+		self.slowed = False
 
 
 	def setup(self):
@@ -71,8 +73,8 @@ class MyGame(arcade.Window):
 
 
 		#Generate debris sprite
-		debris_x = random.uniform(self.satellite.model_x - (SCREEN_WIDTH/2), self.satellite.model_x + (SCREEN_WIDTH/2))
-		debris_y = random.uniform(self.satellite.model_y-(SCREEN_WIDTH/2),self.satellite.model_y + (SCREEN_WIDTH/2))
+		debris_x = random.uniform(self.satellite.model_x.value - (SCREEN_WIDTH/2), self.satellite.model_x.value + (SCREEN_WIDTH/2))
+		debris_y = random.uniform(self.satellite.model_y.value-(SCREEN_WIDTH/2),self.satellite.model_y.value + (SCREEN_WIDTH/2))
 		debris = Classes.debris(debris_x, debris_y, [0,0],"Images/debris.png", [0, 705*10**3, 1])
 		#debris = Classes.debris(300,500,[0,0], "Images/debris.png")
 
@@ -244,7 +246,7 @@ class MyGame(arcade.Window):
 		time_list = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
 		#Write text on the screen in the top left corner
-		arcade.draw_text("Number of debris: {}\nNumber of nets: {}\nNumber of netted debris: {}\nTime: {}".format(len(self.debris_list),len(self.projectile_list),len(self.netted_debris_list),(time_list)),
+		arcade.draw_text("Number of debris: {}\nNumber of nets: {}\nNumber of netted debris: {}\nTime: {}\nTime multiplier{}".format(len(self.debris_list),len(self.projectile_list),len(self.netted_debris_list),(time_list),self.TIME_MULTIPLIER),
                          10, SCREEN_HEIGHT -10, arcade.color.BLACK, 12, anchor_x="left", anchor_y="top")
 
 		
@@ -291,8 +293,22 @@ class MyGame(arcade.Window):
 			arcade.draw_circle_outline(self.earth.center_x, self.earth.center_y, (120 + 6371) * 1000 * self.canvas_info[2] , arcade.color.CYAN, 1)
 			arcade.draw_circle_outline(self.earth.center_x, self.earth.center_y, (2000 + 6371) * 1000 * self.canvas_info[2] , arcade.color.CYBER_GRAPE, 1)
 
+
 	def update(self, delta_time):
 		if(self.update):
+
+
+			if self.slowed:
+				self.TIME_MULTIPLIER = self.old_TIME_MULTIPLIER
+
+			#See if we move too fast for achieving the satellites objective
+			if(self.satellite.time_to_shoot < delta_time * self.TIME_MULTIPLIER):
+				self.old_TIME_MULTIPLIER = self.TIME_MULTIPLIER
+				self.TIME_MULTIPLIER = self.satellite.time_to_shoot() / delta_time
+				self.slowed = True
+
+			
+
 			self.total_time += delta_time * self.TIME_MULTIPLIER
 			if self.center_option:
 				self.canvas_info[0] = self.satellite.model_x
@@ -315,7 +331,9 @@ class MyGame(arcade.Window):
 				member.update(delta_time*self.TIME_MULTIPLIER, self.canvas_info)
 			for member in self.netted_debris_list:
 				member.update(delta_time*self.TIME_MULTIPLIER, self.canvas_info)
-				if abs(member.debris.center_x) > 1000 or abs(member.debris.center_y) > 1000:
+
+				#Check if debris is within the karman line plus the radius of earth
+				if np.sqrt(debris.model_x**2 + debris.model_y**2) < 6371*u.km + 120*u.km:
 					member.kill()
 					print("Killed netted debris")
 					self.netted_debris_list.remove(member)
