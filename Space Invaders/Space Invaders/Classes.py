@@ -148,10 +148,10 @@ class satellite(arcade.Sprite):
 
 
 		#Create an orbit object, which a debris is.
-		r = [-6045, -3490, 2500]
-		v = [-3457, 6618, 2533]
+		r = [0, 6371+1100, 0]
+		v = [7304.048234, 0, 0]
 		rtest, vtest = functions.get_random_ellipse_orbit()
-		self.orbit = Orbit.from_vectors(Earth, rtest * u.km, vtest * u.m / u.s)
+		self.orbit = Orbit.from_vectors(Earth, r * u.km, v * u.m / u.s)
 		self.set_vel_vector()
 
 	def set_vel_vector(self):
