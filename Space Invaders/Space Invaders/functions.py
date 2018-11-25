@@ -317,6 +317,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 	# start by figuring out of satellite are moving clockwise or counter clockwise
 	far_distance = 3000000
 	close_distance = 2000000
+	accept_angle = 15
 
 	satelite_rot_dir = orbit_direction(satellite.orbit)
 	result_list = list()
@@ -333,8 +334,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 		satellite_period = satellite.orbit.state.period
 
 		nr_of_crossings = seek_time_unit/debris_period + seek_time_unit/satellite_period
-		print(nr_of_crossings)
-
+		
 
 		for i in range(0, int(nr_of_crossings.value)*2): #searching at different samples - nyquist style amount of samples
 			start_time = (seek_time_unit/(int(nr_of_crossings.value)*2)) * i 
@@ -400,7 +400,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 				if collision_angle < -180:
 					collision_angle = -(collision_angle%360)
 				
-				if collision_angle < 15 and collision_angle > -15:
+				if collision_angle < accept_angle and collision_angle > -accept_angle:
 					print("succes")
 					result_list[index_count].append((gradiant_time - j*1*u.s , collision_angle, aim_angle))
 				else:
@@ -465,7 +465,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 					if collision_angle < -180:
 						collision_angle = -(collision_angle%360)
 				
-					if collision_angle < 15 and collision_angle > -15:
+					if collision_angle < accept_angle and collision_angle > -accept_angle:
 						print("succes")
 						result_list[index_count].append((gradiant_time + gradiant_diff - j*1*u.s, collision_angle, aim_angle))
 						#SAVE SUCCES
@@ -537,7 +537,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 					if collision_angle < -180:
 						collision_angle = -(collision_angle%360)
 				
-					if collision_angle < 15 and collision_angle > -15:
+					if collision_angle < accept_angle and collision_angle > -accept_angle:
 						print("succes")
 						result_list[index_count].append((gradiant_time - gradiant_diff - j*1*u.s, collision_angle, aim_angle))
 					#SAVE SUCCES
@@ -612,7 +612,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 					if collision_angle < -180:
 						collision_angle = -(collision_angle%360)
 				
-					if collision_angle < 15 and collision_angle > -15:
+					if collision_angle < accept_angle and collision_angle > -accept_angle:
 						print("succes")
 						result_list[index_count].append((gradiant_time - j*1*u.s, collision_angle, aim_angle))
 					#SAVE SUCCES
@@ -629,6 +629,11 @@ def find_crossing_times(satellite, debris_list, seek_time):
 				else: # we move in negative time direction
 					gradiant_diff *= 0.5
 					gradiant_time -= gradiant_diff
-
-	print(result_list)
+	
+	# The result is a list of list the outer list has a entry for every piece of debris. It has the value False, if this debris orbits in the same direction as the satellite.
+	# If the debris orbits in the oppeset direction this index is a list of sampling point where the code has tried to find an point in the orbit where i can hit the debris.
+	# this outer list has an entry for every sampling point. An entry is set to False if no point could be found in search space. If a point is found this entry will have the
+	# value (delta time, collision angle, aim angle) -> where the delta time, is the time from the search started to the satellite should shoot. collision angle is the angle
+	# collison where 0 degrees is head on. the aim angle is the angle that the satellite should shoot the debris.
+	return result_list
 	
