@@ -18,8 +18,12 @@ from astropy import units as u
 
 def collision(projectile, debris):
 
-	if abs(projectile.center_x - debris.center_x) < 10:
-		if abs(projectile.center_y - debris.center_y) < 10:
+	print(projectile.model_x)
+	print(debris.model_x)
+	print(projectile.model_x - debris.model_x)
+
+	if abs(projectile.model_x - debris.model_x) < 10 * u.m:
+		if abs(projectile.model_y - debris.model_y) < 10 * u.m:
 			return True
 	return False
 
@@ -64,7 +68,7 @@ def orbit_to_position(orbit):
 	x = orbit.r[0]
 	y = orbit.r[1]
 
-	return x.value * 1000, y.value*1000
+	return x, y
 
 def get_vector_orbit(orbit_element):
 	return orbit_element.state.v
@@ -116,7 +120,6 @@ def get_net_angle_immediate(abs_vel_net, satellite, debris):
 	pos_x_debris_after_rotation = pos_y_debris_center*math.sin(math.radians(degrees_of_rotation)) + pos_x_debris_center*math.cos(math.radians(degrees_of_rotation))
 	pos_y_debris_after_rotation = pos_y_debris_center*math.cos(math.radians(degrees_of_rotation)) - pos_x_debris_center*math.sin(math.radians(degrees_of_rotation))
 
-get
 	#We test that the value is not negative. If assertion fails, it means there is a negative number.
 	assert((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2 >= 0)
 	assert(((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2) >= 0)
@@ -199,6 +202,10 @@ def get_canvas_pos(x, y, canvas_info):
 	ref_x = canvas_info[0]
 	ref_y = canvas_info[1]
 	zoom_mult = canvas_info[2]
+
+	if(type(x) == type(1*u.km)):
+		x = x.value * 1000
+		y = y.value * 1000
 
 	return (x*zoom_mult - ref_x*zoom_mult + 300), (y*zoom_mult - ref_y*zoom_mult + 300)
 

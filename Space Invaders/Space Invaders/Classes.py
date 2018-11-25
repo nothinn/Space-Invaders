@@ -46,8 +46,8 @@ class debris(arcade.Sprite):
 	def __init__(self, x, y, vel_vector, path, canvas_info,mass = 42*u.kg, filename = "Images/debris.png"):
 		super().__init__(filename=path,scale = 0.2)
 
-		self.model_x = x #model is the postion in the background model
-		self.model_y = y
+		self.model_x = x * u.km #model is the postion in the background model
+		self.model_y = y * u.km
 		self.center_x, self.center_y = functions.get_canvas_pos(x, y, canvas_info) #center is the postion on canvas
 		self.vel_vector = vel_vector
 
