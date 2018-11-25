@@ -26,8 +26,6 @@ class netted_debris():
 
 		new_vel_vector = debris.vel_vector
 
-		new_vel_vector[0] += projectile.vel_vector[0]
-		new_vel_vector[1] += projectile.vel_vector[1]
 
 
 		projectile.vel_vector = new_vel_vector
@@ -45,7 +43,7 @@ class netted_debris():
 
 class debris(arcade.Sprite):
 
-	def __init__(self, x, y, vel_vector, path, canvas_info, filename = "Images/debris.png"):
+	def __init__(self, x, y, vel_vector, path, canvas_info,mass = 42*u.kg, filename = "Images/debris.png"):
 		super().__init__(filename=path,scale = 0.2)
 
 		self.model_x = x #model is the postion in the background model
@@ -60,6 +58,8 @@ class debris(arcade.Sprite):
 		rtest, vtest = functions.get_random_ellipse_orbit()
 		self.orbit = Orbit.from_vectors(Earth, rtest * u.km, vtest * u.m / u.s)
 
+		self.update(0.00001,[0,0,0,0])
+		self.mass = mass
 
 	def set_vel_vector(self):
 		vel_from_orbit = self.orbit.state.v.to(u.m / u.s)
@@ -94,21 +94,25 @@ class projectile(arcade.Sprite):
 	def __init__(self, scale, x, y, vel_vector, canvas_info, mass = 42*u.kg, filename = "Images/net.png"):
 		super().__init__(filename, scale)
 
-		self.model_x = x #model is the postion in the background model
-		self.model_y = y
+		self.model_x = x*u.km #model is the postion in the background model
+		self.model_y = y*u.km
 		self.center_x, self.center_y = functions.get_canvas_pos(x, y, canvas_info) #center is the postion on canvas
-		self.vel_vector = vel_vector * u.m/u.s
 
-		self.angle = functions.vec_to_angle_2d(vel_vector[0],vel_vector[1]) 
 
+		
+		self.vel_vector = vel_vector
+		if type(self.vel_vector) != type([0,0,0]*u.m/u.s):
+			self.vel_vector = self.vel_vector *u.m/u.s
+
+		self.angle = functions.vec_to_angle_2d(self.vel_vector[0].value,self.vel_vector[1].value) 
 		self.mass = mass
 
 
 	def update(self, delta_time, canvas_info):
-		self.model_x += self.vel_vector[0]*delta_time
-		self.model_y += self.vel_vector[1]*delta_time
+		self.model_x += self.vel_vector[0]*delta_time * u.s
+		self.model_y += self.vel_vector[1]*delta_time * u.s
 
-		self.center_x, self.center_y = functions.get_canvas_pos(self.model_x, self.model_y, canvas_info)
+		self.center_x, self.center_y = functions.get_canvas_pos(self.model_x.value, self.model_y.value, canvas_info)
 
 
 class earth(arcade.Sprite):
