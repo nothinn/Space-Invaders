@@ -66,6 +66,7 @@ class debris(arcade.Sprite):
 		self.vel_vector[0] = vel_from_orbit[0].value
 		self.vel_vector[1] = vel_from_orbit[1].value
 
+		self.model_x, self.model_y = functions.orbit_to_position(self.orbit)
 
 	def give_impulse(self):
 		
@@ -157,6 +158,8 @@ class satellite(arcade.Sprite):
 		vel_from_orbit = self.orbit.state.v.to(u.m / u.s)
 		self.vel_vector[0] = vel_from_orbit[0].value
 		self.vel_vector[1] = vel_from_orbit[1].value
+
+		self.model_x, self.model_y = functions.orbit_to_position(self.orbit)
 
 	def __eq__(self, other):
 		# equality metho for comapring satellite instance
