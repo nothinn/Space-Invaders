@@ -81,12 +81,6 @@ class MyGame(arcade.Window):
 
 
 
-
-
-
-
-
-
 	def on_key_press(self, symbol, modifiers):
 		#Shoot projectile straight from satellite
 		if symbol == arcade.key.ENTER:
@@ -203,7 +197,7 @@ class MyGame(arcade.Window):
 			self.center_option = not self.center_option
 
 		elif symbol == arcade.key.T:
-			functions.find_crossing_times(self.satellite, self.debris_list, 86400)
+			print(functions.find_crossing_times(self.satellite, self.debris_list, 86400))
 
 	
 	def on_key_release(self, symbol, modifiers):
