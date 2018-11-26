@@ -333,6 +333,9 @@ def orbit_direction(orbit):
 	return res #-1 counter clockwise, 1: clockwise
 
 def find_crossing_times(satellite, debris_list, seek_time):
+	#We make a copy to have the same orbit afterwards.
+	old_version = satellite.orbit.propagate(0.000001*u.s)
+
 	# start by figuring out of satellite are moving clockwise or counter clockwise
 	far_distance = 3000000*u.m
 	close_distance = 2000000*u.m
@@ -341,7 +344,10 @@ def find_crossing_times(satellite, debris_list, seek_time):
 	satelite_rot_dir = orbit_direction(satellite.orbit)
 	result_list = list()
 	index_count = -1
+
 	for debris in debris_list: # we are testing for all debris
+		#We make a copy of the debris to return to original state.
+		old_debris = debris.orbit.propagate(0.000001*u.s)
 		if satelite_rot_dir == orbit_direction(debris.orbit): # if the satelite travels in same direction we wont have enough impulse and we wont calculate on this debris.
 			result_list.append(False)
 			index_count += 1
@@ -633,12 +639,17 @@ def find_crossing_times(satellite, debris_list, seek_time):
 				else: # we move in negative time direction
 					gradiant_diff *= 0.5
 					gradiant_time -= gradiant_diff
+
+		debris.orbit = old_debris
+
 	
 	# The result is a list of list the outer list has a entry for every piece of debris. It has the value False, if this debris orbits in the same direction as the satellite.
 	# If the debris orbits in the oppeset direction this index is a list of sampling point where the code has tried to find an point in the orbit where i can hit the debris.
 	# this outer list has an entry for every sampling point. An entry is set to False if no point could be found in search space. If a point is found this entry will have the
 	# value (delta time, collision angle, aim angle) -> where the delta time, is the time from the search started to the satellite should shoot. collision angle is the angle
 	# collison where 0 degrees is head on. the aim angle is the angle that the satellite should shoot the debris.
+
+	satellite.orbit = old_version
 	return result_list
 
 def get_first_shoot(search_list):
