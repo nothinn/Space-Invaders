@@ -34,6 +34,9 @@ def velocity_change(projectile,debris):
 	return [vel_x, vel_y]
 
 def vec_to_angle_2d(x,y):
+	if type(x) == type(1*u.km) :
+		x = x.value
+		y = y.value
 	
 	radians = math.atan2(y,x)
 	degrees = math.degrees(radians)
@@ -102,7 +105,7 @@ def get_net_angle_immediate(abs_vel_net, satellite, debris):
 	pos_y_debris_center = pos_y_debris - pos_y_satalite
     
     # Now we rotate the system such that the debris is traveling parallel to the y axis
-	abs_vel_debris = math.sqrt(vel_x_debris**2 + vel_y_debris**2)
+	abs_vel_debris = np.sqrt(vel_x_debris**2 + vel_y_debris**2)
 	angle_before_rotate = vec_to_angle_2d(vel_x_debris,vel_y_debris)
 	degrees_of_rotation = 0
 
@@ -121,19 +124,19 @@ def get_net_angle_immediate(abs_vel_net, satellite, debris):
 	assert(((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2) >= 0)
 
     #calculate the two possiple angles to aim for in rotated system
-	rotated_aim_1 = math.atan2(((pos_x_debris_after_rotation**2) * abs_vel_debris + math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2) * pos_y_debris_after_rotation)/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2),
-	                          (-abs_vel_debris * pos_y_debris_after_rotation + math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2))*pos_x_debris_after_rotation/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2))
+	rotated_aim_1 = np.arctan2(((pos_x_debris_after_rotation**2) * abs_vel_debris + np.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2) * pos_y_debris_after_rotation)/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2),
+	                          (-abs_vel_debris * pos_y_debris_after_rotation + np.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2))*pos_x_debris_after_rotation/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2))
     
 	'''rotated_aim_2 = math.atan2(((pos_x_debris_after_rotation**2) * abs_vel_debris - math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2) * pos_y_debris_after_rotation)/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2), 
                                -((abs_vel_debris * pos_y_debris_after_rotation + math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2))*pos_x_debris_after_rotation/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2)))
     '''
-	collision_time = pos_x_debris_after_rotation / (abs_vel_net * math.cos(rotated_aim_1)) # the time from fireing to the collision in seconds
+	collision_time = pos_x_debris_after_rotation / (abs_vel_net * np.cos(rotated_aim_1)) # the time from fireing to the collision in seconds
 
     # get the angle in the non-roted system
-	aim_1 = math.degrees(rotated_aim_1) + degrees_of_rotation
+	aim_1 = rotated_aim_1.to(u.deg) + degrees_of_rotation*u.deg
     #aim_2 = math.degrees(rotated_aim_2) + degrees_of_rotation
 
-	return aim_1%360, collision_time #, aim_2
+	return (aim_1.value%360)*u.deg, collision_time.to(u.s) #, aim_2
 
 
 
@@ -306,7 +309,7 @@ def update_satellite_rotation(satellite, current_time):
 	return new_angle, [True, t, degrees_of_rotation, aa, start_time, start_angle]
 
 def distance_distance_two_objects(ax, ay, bx, by):
-	return math.sqrt((bx-ax)**2 + (by-ay)**2)
+	return np.sqrt((bx-ax)**2 + (by-ay)**2)
 
 def orbit_direction(orbit):
 	initial_x, initial_y = orbit_to_position(orbit)
@@ -331,8 +334,8 @@ def orbit_direction(orbit):
 
 def find_crossing_times(satellite, debris_list, seek_time):
 	# start by figuring out of satellite are moving clockwise or counter clockwise
-	far_distance = 3000000
-	close_distance = 2000000
+	far_distance = 3000000*u.m
+	close_distance = 2000000*u.m
 	accept_angle = 15
 
 	satelite_rot_dir = orbit_direction(satellite.orbit)
@@ -379,7 +382,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 
 			slobe = dist2 - dist1 #a negative slope: the we seek a point that are in positive time direction.
 
-			if dist1 < far_distance and slobe < 0: # see if this is a valid point already
+			if dist1 < far_distance and slobe < 0*u.m: # see if this is a valid point already
 				j = 0
 				if dist1 < close_distance: #we are too close to get good angle
 					while True:
@@ -404,14 +407,14 @@ def find_crossing_times(satellite, debris_list, seek_time):
 				satellite_temp.set_vel_vector()
 				debris_temp.set_vel_vector()
 
-				aim_angle, time_to_collision = get_net_angle_immediate(math.sqrt(satellite_temp.vel_vector[0]**2 + satellite_temp.vel_vector[1]**2), satellite_temp, debris_temp)
+				aim_angle, time_to_collision = get_net_angle_immediate(np.sqrt(satellite_temp.vel_vector[0]**2 + satellite_temp.vel_vector[1]**2), satellite_temp, debris_temp)
 
-				debris_temp.orbit.propagate(time_to_collision * u.s)
+				debris_temp.orbit.propagate(time_to_collision)
 				debris_temp.set_vel_vector()
 
 				debris_angle_flip = (vec_to_angle_2d(debris_temp.vel_vector[0], debris_temp.vel_vector[1]) + 180)%360
 
-				collision_angle = aim_angle - debris_angle_flip
+				collision_angle = aim_angle.value - debris_angle_flip
 
 				if collision_angle < -180:
 					collision_angle = -(collision_angle%360)
@@ -426,7 +429,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 				continue
 
 			#We test edge case for this samples search interval
-			if slobe <= 0: 
+			if slobe <= 0*u.m: 
 				sat_orbit_copy = satellite.orbit.propagate(gradiant_time + gradiant_diff)
 				deb_orbit_copy = debris.orbit.propagate(gradiant_time + gradiant_diff)
 
@@ -445,7 +448,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 
 				slobe = dist2 - dist1
 
-				if dist1 < far_distance and slobe < 0:
+				if dist1 < far_distance and slobe < 0*u.m:
 					j = 0
 					if dist1 < close_distance: #we are too close to get good angle
 						while True:
@@ -469,14 +472,14 @@ def find_crossing_times(satellite, debris_list, seek_time):
 					satellite_temp.set_vel_vector()
 					debris_temp.set_vel_vector()
 
-					aim_angle, time_to_collision = get_net_angle_immediate(math.sqrt(satellite_temp.vel_vector[0]**2 + satellite_temp.vel_vector[1]**2), satellite_temp, debris_temp)
+					aim_angle, time_to_collision = get_net_angle_immediate(np.sqrt(satellite_temp.vel_vector[0]**2 + satellite_temp.vel_vector[1]**2), satellite_temp, debris_temp)
 
-					debris_temp.orbit.propagate(time_to_collision * u.s)
+					debris_temp.orbit.propagate(time_to_collision)
 					debris_temp.set_vel_vector()
 
 					debris_angle_flip = (vec_to_angle_2d(debris_temp.vel_vector[0], debris_temp.vel_vector[1]) + 180)%360
 
-					collision_angle = aim_angle - debris_angle_flip
+					collision_angle = aim_angle.value - debris_angle_flip
 
 					if collision_angle < -180:
 						collision_angle = -(collision_angle%360)
@@ -490,7 +493,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 						result_list[index_count].append(False)
 					continue
 
-				if slobe <= 0:
+				if slobe <= 0*u.m:
 					print("Not here")
 					continue
 					#decide what to do with failure
@@ -517,7 +520,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 
 				slobe = dist2 - dist1
 
-				if dist1 < far_distance and slobe < 0:
+				if dist1 < far_distance and slobe < 0*u.m:
 					j = 0
 					if dist1 < close_distance: #we are too close to get good angle
 						while True:
@@ -541,14 +544,14 @@ def find_crossing_times(satellite, debris_list, seek_time):
 					satellite_temp.set_vel_vector()
 					debris_temp.set_vel_vector()
 
-					aim_angle, time_to_collision = get_net_angle_immediate(math.sqrt(satellite_temp.vel_vector[0]**2 + satellite_temp.vel_vector[1]**2), satellite_temp, debris_temp)
+					aim_angle, time_to_collision = get_net_angle_immediate(np.sqrt(satellite_temp.vel_vector[0]**2 + satellite_temp.vel_vector[1]**2), satellite_temp, debris_temp)
 
-					debris_temp.orbit.propagate(time_to_collision * u.s)
+					debris_temp.orbit.propagate(time_to_collision)
 					debris_temp.set_vel_vector()
 
 					debris_angle_flip = (vec_to_angle_2d(debris_temp.vel_vector[0], debris_temp.vel_vector[1]) + 180)%360
 
-					collision_angle = aim_angle - debris_angle_flip
+					collision_angle = aim_angle.value - debris_angle_flip
 
 					if collision_angle < -180:
 						collision_angle = -(collision_angle%360)
@@ -563,7 +566,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 						result_list[index_count].append(False)
 					continue
 
-				if slobe > 0:
+				if slobe > 0*u.m:
 					print("Not here")
 					continue
 					#decide what to do with failure
@@ -592,7 +595,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 				
 				slobe = dist2 - dist1
 
-				if dist1 < far_distance and slobe < 0:
+				if dist1 < far_distance and slobe < 0*u.m:
 					j = 0
 					if dist1 < close_distance: #we are too close to get good angle
 						while True:
@@ -616,14 +619,14 @@ def find_crossing_times(satellite, debris_list, seek_time):
 					satellite_temp.set_vel_vector()
 					debris_temp.set_vel_vector()
 
-					aim_angle, time_to_collision = get_net_angle_immediate(math.sqrt(satellite_temp.vel_vector[0]**2 + satellite_temp.vel_vector[1]**2), satellite_temp, debris_temp)
+					aim_angle, time_to_collision = get_net_angle_immediate(np.sqrt(satellite_temp.vel_vector[0]**2 + satellite_temp.vel_vector[1]**2), satellite_temp, debris_temp)
 
-					debris_temp.orbit.propagate(time_to_collision * u.s)
+					debris_temp.orbit.propagate(time_to_collision)
 					debris_temp.set_vel_vector()
 
 					debris_angle_flip = (vec_to_angle_2d(debris_temp.vel_vector[0], debris_temp.vel_vector[1]) + 180)%360
 
-					collision_angle = aim_angle - debris_angle_flip
+					collision_angle = aim_angle.value - debris_angle_flip
 
 					if collision_angle < -180:
 						collision_angle = -(collision_angle%360)
@@ -638,7 +641,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 						result_list[index_count].append(False)
 						break
 				
-				if slobe <= 0: # we move in positive time direction
+				if slobe <= 0*u.m: # we move in positive time direction
 					gradiant_diff *= 0.5
 					gradiant_time += gradiant_diff
 
@@ -652,4 +655,17 @@ def find_crossing_times(satellite, debris_list, seek_time):
 	# value (delta time, collision angle, aim angle) -> where the delta time, is the time from the search started to the satellite should shoot. collision angle is the angle
 	# collison where 0 degrees is head on. the aim angle is the angle that the satellite should shoot the debris.
 	return result_list
+
+def get_first_shoot(search_list):
+	for debris_info in search_list:
+		if debris_info == False:
+			continue
+		else:
+			for entry in debris_info:
+				if entry == False:
+					continue
+				else:
+					return entry
+	return False
+			
 	
