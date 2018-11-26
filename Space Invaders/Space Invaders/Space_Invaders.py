@@ -123,7 +123,7 @@ class MyGame(arcade.Window):
 
 
 		elif symbol == arcade.key.N:
-			possibilities = functions.find_crossing_times(self.satellite,self.debris_list,8640)
+			possibilities = functions.find_crossing_times(self.satellite,self.debris_list,86400)
 
 			self.skip_update = True
 

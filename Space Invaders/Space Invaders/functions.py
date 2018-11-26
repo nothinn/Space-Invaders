@@ -18,8 +18,8 @@ from astropy import units as u
 
 def collision(projectile, debris):
 
-	if abs(projectile.model_x - debris.model_x) < 10 * u.m:
-		if abs(projectile.model_y - debris.model_y) < 10 * u.m:
+	if abs(projectile.model_x - debris.model_x) < 10000 * u.m:
+		if abs(projectile.model_y - debris.model_y) < 10000 * u.m:
 			return True
 	return False
 
@@ -72,6 +72,17 @@ def orbit_to_position(orbit):
 def get_vector_orbit(orbit_element):
 	return orbit_element.state.v
 	
+def get_angle_between_two_orbits(orbit1, orbit2):
+	x1, y1 = orbit_to_position(orbit1)
+	x2, y2 = orbit_to_position(orbit2)
+
+	dist_x = x2 - x1
+	dist_y = y2 - y1
+
+	return np.arctan2(dist_y, dist_x).to(u.deg)
+
+	
+
 
 def orbit_impulse(orbit, vector):
 	
@@ -421,6 +432,8 @@ def find_crossing_times(satellite, debris_list, seek_time):
 
 				debris_angle_flip = (vec_to_angle_2d(debris_temp.vel_vector[0], debris_temp.vel_vector[1]) + 180)%360
 
+				aim_angle = get_angle_between_two_orbits(satellite_temp.orbit, debris_temp.orbit)
+
 				collision_angle = aim_angle.value - debris_angle_flip
 
 				if collision_angle < -180:
@@ -483,6 +496,8 @@ def find_crossing_times(satellite, debris_list, seek_time):
 					debris_temp.set_vel_vector()
 
 					debris_angle_flip = (vec_to_angle_2d(debris_temp.vel_vector[0], debris_temp.vel_vector[1]) + 180)%360
+
+					aim_angle = get_angle_between_two_orbits(satellite_temp.orbit, debris_temp.orbit)
 
 					collision_angle = aim_angle.value - debris_angle_flip
 
@@ -550,6 +565,8 @@ def find_crossing_times(satellite, debris_list, seek_time):
 					debris_temp.set_vel_vector()
 
 					debris_angle_flip = (vec_to_angle_2d(debris_temp.vel_vector[0], debris_temp.vel_vector[1]) + 180)%360
+
+					aim_angle = get_angle_between_two_orbits(satellite_temp.orbit, debris_temp.orbit)
 
 					collision_angle = aim_angle.value - debris_angle_flip
 
@@ -619,6 +636,8 @@ def find_crossing_times(satellite, debris_list, seek_time):
 					debris_temp.set_vel_vector()
 
 					debris_angle_flip = (vec_to_angle_2d(debris_temp.vel_vector[0], debris_temp.vel_vector[1]) + 180)%360
+
+					aim_angle = get_angle_between_two_orbits(satellite_temp.orbit, debris_temp.orbit)
 
 					collision_angle = aim_angle.value - debris_angle_flip
 
