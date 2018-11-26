@@ -86,12 +86,12 @@ def get_angle_between_two_orbits(orbit1, orbit2):
 
 def orbit_impulse(orbit, vector):
 	
-	dv = vector
+	dv = [vector[0].value,vector[1].to(vector[0].unit).value, 0]*vector[0].unit
+	print(dv)
 
-	if type(vector) != type([0,0,0]*u.m/u.s):
-		dv = vector *u.m/u.s
+	#if type(vector) != type([0,0,0]*u.m/u.s):
+	#	dv = vector *u.m/u.s
 
-	
 	man = Maneuver.impulse(dv)
 
 	return orbit.apply_maneuver(man)
@@ -373,7 +373,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 		nr_of_crossings = seek_time_unit/debris_period + seek_time_unit/satellite_period
 		
 
-		for i in range(0, int(nr_of_crossings.value)*2): #searching at different samples - nyquist style amount of samples
+		for i in range(1, int(nr_of_crossings.value)*2): #searching at different samples - nyquist style amount of samples
 			start_time = (seek_time_unit/(int(nr_of_crossings.value)*2)) * i 
 			time_increments = seek_time_unit/(int(nr_of_crossings.value)*2)
 
