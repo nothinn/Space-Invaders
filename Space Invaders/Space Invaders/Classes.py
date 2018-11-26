@@ -94,12 +94,20 @@ class projectile(arcade.Sprite):
 	def __init__(self, scale, x, y, vel_vector, canvas_info, mass = 42*u.kg, filename = "Images/net.png"):
 		super().__init__(filename, scale)
 
-		self.model_x = x*u.km #model is the postion in the background model
-		self.model_y = y*u.km
+
+		if type(x) != type(1*u.m):
+			x *= u.km
+			y *= u.km
+			print("Projectile called without units")
+		
+
+		print(x)
+		print(y)
+		self.model_x = x #model is the postion in the background model
+		self.model_y = y
 		self.center_x, self.center_y = functions.get_canvas_pos(x, y, canvas_info) #center is the postion on canvas
 
 
-		
 		self.vel_vector = vel_vector
 		if type(self.vel_vector) != type([0,0,0]*u.m/u.s):
 			self.vel_vector = self.vel_vector *u.m/u.s
@@ -109,10 +117,11 @@ class projectile(arcade.Sprite):
 
 
 	def update(self, delta_time, canvas_info):
+
 		self.model_x += self.vel_vector[0]*delta_time * u.s
 		self.model_y += self.vel_vector[1]*delta_time * u.s
 
-		self.center_x, self.center_y = functions.get_canvas_pos(self.model_x.value, self.model_y.value, canvas_info)
+		self.center_x, self.center_y = functions.get_canvas_pos(self.model_x, self.model_y, canvas_info)
 
 
 class earth(arcade.Sprite):
@@ -145,15 +154,12 @@ class satellite(arcade.Sprite):
 
 		self.rotation_info = [False, 0, 0, 0, 0, 0] # [0: Rotation in motion, 1: rotation half time, 2: degrees of rotation, 3: angular accelearion, 4: start time, 5:start angle]
 		self.rotation_start = [False, 0] 
-
 		
 		#Setup values needed for updating the satelllite
 		self.has_objective = False
 		self.angle_goal = 0
 		self.time_to_shoot = float("inf")
 
-
-		#Create an orbit object, which a debris is.
 		r = [0, 6371+1100, 0]
 		v = [7304.048234, 0, 0]
 		rtest, vtest = functions.get_random_ellipse_orbit()
@@ -180,6 +186,8 @@ class satellite(arcade.Sprite):
 
 
 	def update(self, delta_time, canvas_info, total_time):
+
+		self.canvas_info = canvas_info
 
 		if self.rotation_start[0]:
 			self.rotation_info = functions.rotate_satellite(self, self.rotation_start[1], total_time)
@@ -240,8 +248,25 @@ class satellite(arcade.Sprite):
 		#Insert calculation for finding the time to shoot
 		self.time_to_shoot = wait_time
 
+	def get_projectile(self, mass = 0.1*u.kg):
 
-	def get_projectile(self):
-		shot = projectile(0.5,self.center_x, self.center_y, functions.angle_to_vec_2d(self.angle), "Images/net.png")
+		#We change the angle to be in the angle of the satellite
+		angle = self.angle
+		#We use pythagoras to find the velocity
 
+		vel_vector = functions.get_vector_orbit(self.orbit)
+		velocity = np.sqrt(vel_vector[0]**2 + vel_vector[1]**2)
+
+		print(velocity)
+		#We convert the angle to vector:
+		new_vector = functions.angle_to_vec_2d(angle)
+
+		print(new_vector)
+		#And multiply by the velocity
+		new_vector *= velocity
+
+		print(new_vector)
+
+		shot = projectile(0.5,self.model_x, self.model_y,vel_vector = new_vector,mass = mass, canvas_info=self.canvas_info)
+		print(shot)
 		return shot
