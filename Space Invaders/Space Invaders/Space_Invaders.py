@@ -199,7 +199,9 @@ class MyGame(arcade.Window):
 
 		# Runs the position/time seek function
 		elif symbol == arcade.key.T:
-			print(functions.find_crossing_times(self.satellite, self.debris_list, 86400))
+			search_list = functions.find_crossing_times(self.satellite, self.debris_list, 86400)
+			first_target = functions.get_first_shoot(search_list)
+			print(first_target)
 
 
 		#Speed up the simulation
