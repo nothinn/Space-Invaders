@@ -55,6 +55,9 @@ class MyGame(arcade.Window):
 		#Used to check if time was slowed last
 		self.slowed = False
 
+		#Used when doing large calculations. The next update will be skipped to avoid time jumping.
+		self.skip_update = False
+
 
 	def setup(self):
 
@@ -120,7 +123,11 @@ class MyGame(arcade.Window):
 
 
 		elif symbol == arcade.key.N:
-			self.satellite.give_objective(functions.find_crossing_times(self.satellite,self.debris_list,10*u.d))
+			possibilities = functions.find_crossing_times(self.satellite,self.debris_list,86400)
+
+			self.skip_update = True
+
+			self.satellite.give_objective(possibilities)
 
 		#Display coordinates of objects
 		elif symbol == arcade.key.D:
@@ -199,7 +206,9 @@ class MyGame(arcade.Window):
 
 		# Runs the position/time seek function
 		elif symbol == arcade.key.T:
+			self.skip_update = True
 			search_list = functions.find_crossing_times(self.satellite, self.debris_list, 86400)
+			
 			first_target = functions.get_first_shoot(search_list)
 			print(first_target)
 
@@ -209,9 +218,15 @@ class MyGame(arcade.Window):
 			self.TIME_MULTIPLIER += 10
 
 		#Slow down the simulation
-		elif symbol == symbol == arcade.key.NUM_SUBTRACT:
+		elif symbol == arcade.key.NUM_SUBTRACT:
 			self.TIME_MULTIPLIER -= 10
 
+
+		#Slow test
+		elif symbol == arcade.key.Q:
+			self.skip_update = True
+			import time
+			time.sleep(10)
 
 
 	
@@ -293,16 +308,18 @@ class MyGame(arcade.Window):
 
 
 	def update(self, delta_time):
-		if(self.update):
 
+		if(self.update == True and self.skip_update == False):
+
+			
 
 			if self.slowed:
 				self.TIME_MULTIPLIER = self.old_TIME_MULTIPLIER
 
 			#See if we move too fast for achieving the satellites objective
-			if(self.satellite.time_to_shoot < delta_time * self.TIME_MULTIPLIER):
+			if(self.satellite.time_to_shoot < delta_time * self.TIME_MULTIPLIER * u.s):
 				self.old_TIME_MULTIPLIER = self.TIME_MULTIPLIER
-				self.TIME_MULTIPLIER = self.satellite.time_to_shoot() / delta_time
+				self.TIME_MULTIPLIER = (self.satellite.time_to_shoot / delta_time).value
 				self.slowed = True
 
 			
@@ -346,6 +363,8 @@ class MyGame(arcade.Window):
 						self.netted_debris_list.append(Classes.netted_debris(projectile,debris))
 						self.projectile_list.remove(projectile)
 						self.debris_list.remove(debris)
+
+		self.skip_update = False
 
 
 def main():
