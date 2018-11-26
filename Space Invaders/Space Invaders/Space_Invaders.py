@@ -315,6 +315,7 @@ class MyGame(arcade.Window):
 
 			if self.slowed:
 				self.TIME_MULTIPLIER = self.old_TIME_MULTIPLIER
+				self.slowed = False
 
 			#See if we move too fast for achieving the satellites objective
 			if(self.satellite.time_to_shoot < delta_time * self.TIME_MULTIPLIER * u.s):
@@ -362,7 +363,7 @@ class MyGame(arcade.Window):
 						self.netted_debris_list.append(Classes.netted_debris(projectile,debris))
 						self.projectile_list.remove(projectile)
 						self.debris_list.remove(debris)
-
+		
 		self.skip_update = False
 
 
