@@ -2,6 +2,7 @@ import arcade
 import os
 import math
 import random
+import numpy as np
 
 import functions
 import Classes
@@ -348,7 +349,7 @@ class MyGame(arcade.Window):
 				member.update(delta_time*self.TIME_MULTIPLIER, self.canvas_info)
 
 				#Check if debris is within the karman line plus the radius of earth
-				if np.sqrt(debris.model_x**2 + debris.model_y**2) < 6371*u.km + 120*u.km:
+				if np.sqrt(member.debris.model_x**2 + member.debris.model_y**2) < 6371*u.km + 120*u.km:
 					member.kill()
 					print("Killed netted debris")
 					self.netted_debris_list.remove(member)
