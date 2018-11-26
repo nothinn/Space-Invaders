@@ -23,17 +23,18 @@ class netted_debris():
 	def __init__(self, projectile, debris):
 		self.projectile = projectile
 		self.debris = debris
+		print(debris.orbit.r_p)
+		self.debris.orbit = functions.orbit_impulse(debris.orbit, functions.velocity_change(projectile, debris))
+		print(self.debris.orbit.r_p)
+		print(self.projectile.mass)
 
-		new_vel_vector = debris.vel_vector
-
-
-
-		projectile.vel_vector = new_vel_vector
-		debris.vel_vector = new_vel_vector
+		#new_vel_vector = debris.vel_vector
+		#projectile.vel_vector = new_vel_vector
+		#debris.vel_vector = new_vel_vector
 
 	def update(self, delta_time, canvas_info):
-		self.projectile.update(delta_time, canvas_info)
 		self.debris.update(delta_time, canvas_info)
+		self.projectile.update(delta_time, canvas_info, self.debris)
 
 	def kill(self):
 		self.debris.kill()
@@ -116,11 +117,14 @@ class projectile(arcade.Sprite):
 		self.mass = mass
 
 
-	def update(self, delta_time, canvas_info):
+	def update(self, delta_time, canvas_info, debris = None):
+		if debris == None:
 
-		self.model_x += self.vel_vector[0]*delta_time * u.s
-		self.model_y += self.vel_vector[1]*delta_time * u.s
-
+			self.model_x += self.vel_vector[0]*delta_time * u.s
+			self.model_y += self.vel_vector[1]*delta_time * u.s
+		else:
+			self.model_x = debris.model_x
+			self.model_y = debris.model_y
 		self.center_x, self.center_y = functions.get_canvas_pos(self.model_x, self.model_y, canvas_info)
 
 
@@ -260,7 +264,7 @@ class satellite(arcade.Sprite):
 		#Insert calculation for finding the time to shoot
 		self.time_to_shoot = wait_time
 
-	def get_projectile(self, mass = 0.1*u.kg):
+	def get_projectile(self, mass = 1*u.kg):
 
 		#We change the angle to be in the angle of the satellite
 		angle = self.angle
