@@ -18,10 +18,6 @@ from astropy import units as u
 
 def collision(projectile, debris):
 
-	print(projectile.model_x)
-	print(debris.model_x)
-	print(projectile.model_x - debris.model_x)
-
 	if abs(projectile.model_x - debris.model_x) < 10 * u.m:
 		if abs(projectile.model_y - debris.model_y) < 10 * u.m:
 			return True
