@@ -242,9 +242,17 @@ class satellite(arcade.Sprite):
 
 		first_to_shoot = functions.get_first_shoot(possibilities)
 
+		if first_to_shoot == False:
+			
+			return
 		wait_time = first_to_shoot[0]
 
 		aim_angle = first_to_shoot[2]
+
+		print(first_to_shoot[0])
+		print(first_to_shoot[1])
+		print(first_to_shoot[2])
+
 
 		#Insert calculation for finding the angle the satellite should have
 		self.start_rotation(aim_angle.value)

@@ -333,6 +333,7 @@ def orbit_direction(orbit):
 	return res #-1 counter clockwise, 1: clockwise
 
 def find_crossing_times(satellite, debris_list, seek_time):
+	import copy
 	#We make a copy to have the same orbit afterwards.
 	old_version = satellite.orbit.propagate(0.000001*u.s)
 
@@ -404,8 +405,8 @@ def find_crossing_times(satellite, debris_list, seek_time):
 						if dist1 > close_distance:
 							break
 				
-				satellite_temp = satellite
-				debris_temp = debris
+				satellite_temp = copy.deepcopy(satellite)
+				debris_temp = copy.deepcopy(debris)
 
 				satellite_temp.orbit = sat_orbit_copy
 				debris_temp.orbit = deb_orbit_copy
@@ -415,7 +416,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 
 				aim_angle, time_to_collision = get_net_angle_immediate(np.sqrt(satellite_temp.vel_vector[0]**2 + satellite_temp.vel_vector[1]**2), satellite_temp, debris_temp)
 
-				debris_temp.orbit.propagate(time_to_collision)
+				debris_temp.orbit = debris_temp.orbit.propagate(time_to_collision)
 				debris_temp.set_vel_vector()
 
 				debris_angle_flip = (vec_to_angle_2d(debris_temp.vel_vector[0], debris_temp.vel_vector[1]) + 180)%360
@@ -467,8 +468,8 @@ def find_crossing_times(satellite, debris_list, seek_time):
 
 							if dist1 > close_distance:
 								break
-					satellite_temp = satellite
-					debris_temp = debris
+					satellite_temp = copy.deepcopy(satellite)
+					debris_temp = copy.deepcopy(debris)
 
 					satellite_temp.orbit = sat_orbit_copy
 					debris_temp.orbit = deb_orbit_copy
@@ -478,7 +479,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 
 					aim_angle, time_to_collision = get_net_angle_immediate(np.sqrt(satellite_temp.vel_vector[0]**2 + satellite_temp.vel_vector[1]**2), satellite_temp, debris_temp)
 
-					debris_temp.orbit.propagate(time_to_collision)
+					debris_temp.orbit = debris_temp.orbit.propagate(time_to_collision)
 					debris_temp.set_vel_vector()
 
 					debris_angle_flip = (vec_to_angle_2d(debris_temp.vel_vector[0], debris_temp.vel_vector[1]) + 180)%360
@@ -534,8 +535,8 @@ def find_crossing_times(satellite, debris_list, seek_time):
 
 							if dist1 > close_distance:
 								break
-					satellite_temp = satellite
-					debris_temp = debris
+					satellite_temp = copy.deepcopy(satellite)
+					debris_temp = copy.deepcopy(debris)
 
 					satellite_temp.orbit = sat_orbit_copy
 					debris_temp.orbit = deb_orbit_copy
@@ -545,7 +546,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 
 					aim_angle, time_to_collision = get_net_angle_immediate(np.sqrt(satellite_temp.vel_vector[0]**2 + satellite_temp.vel_vector[1]**2), satellite_temp, debris_temp)
 
-					debris_temp.orbit.propagate(time_to_collision)
+					debris_temp.orbit = debris_temp.orbit.propagate(time_to_collision)
 					debris_temp.set_vel_vector()
 
 					debris_angle_flip = (vec_to_angle_2d(debris_temp.vel_vector[0], debris_temp.vel_vector[1]) + 180)%360
@@ -603,9 +604,9 @@ def find_crossing_times(satellite, debris_list, seek_time):
 
 							if dist1 > close_distance:
 								break
-					satellite_temp = satellite
-					debris_temp = debris
-
+					satellite_temp = copy.deepcopy(satellite)
+					debris_temp = copy.deepcopy(debris)
+					
 					satellite_temp.orbit = sat_orbit_copy
 					debris_temp.orbit = deb_orbit_copy
 
@@ -614,7 +615,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 
 					aim_angle, time_to_collision = get_net_angle_immediate(np.sqrt(satellite_temp.vel_vector[0]**2 + satellite_temp.vel_vector[1]**2), satellite_temp, debris_temp)
 
-					debris_temp.orbit.propagate(time_to_collision)
+					debris_temp.orbit = debris_temp.orbit.propagate(time_to_collision)
 					debris_temp.set_vel_vector()
 
 					debris_angle_flip = (vec_to_angle_2d(debris_temp.vel_vector[0], debris_temp.vel_vector[1]) + 180)%360

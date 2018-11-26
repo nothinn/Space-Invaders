@@ -123,7 +123,7 @@ class MyGame(arcade.Window):
 
 
 		elif symbol == arcade.key.N:
-			possibilities = functions.find_crossing_times(self.satellite,self.debris_list,86400)
+			possibilities = functions.find_crossing_times(self.satellite,self.debris_list,8640)
 
 			self.skip_update = True
 
@@ -319,15 +319,14 @@ class MyGame(arcade.Window):
 			#See if we move too fast for achieving the satellites objective
 			if(self.satellite.time_to_shoot < delta_time * self.TIME_MULTIPLIER * u.s):
 				self.old_TIME_MULTIPLIER = self.TIME_MULTIPLIER
-				self.TIME_MULTIPLIER = (self.satellite.time_to_shoot / delta_time).value
+				self.TIME_MULTIPLIER = (self.satellite.time_to_shoot / delta_time*u.s).value
 				self.slowed = True
-
 			
 
 			self.total_time += delta_time * self.TIME_MULTIPLIER
 			if self.center_option:
-				self.canvas_info[0] = self.satellite.model_x
-				self.canvas_info[1] = self.satellite.model_y
+				self.canvas_info[0] = self.satellite.model_x.value * 1000
+				self.canvas_info[1] = self.satellite.model_y.value * 1000
 			else:
 				self.canvas_info[0] = SCREEN_WIDTH/2
 				self.canvas_info[1] = SCREEN_HEIGHT/2
