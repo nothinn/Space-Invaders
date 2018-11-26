@@ -237,10 +237,10 @@ class satellite(arcade.Sprite):
 	def has_objective(self):
 		return self.has_objective
 
-	def give_objective(self, debris):
+	def give_objective(self, possibilities):
 		self.has_objective = True
 
-		wait_time, aim_angle = functions.get_time_to_shoot(1.0, self, debris)
+		wait_time, aim_angle = functions.get_first_shoot(possibilities)
 
 		#Insert calculation for finding the angle the satellite should have
 		self.angle_goal = aim_angle

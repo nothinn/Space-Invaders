@@ -7,6 +7,9 @@ import functions
 import Classes
 import test
 
+
+from astropy import units as u
+
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 600
 
@@ -116,15 +119,8 @@ class MyGame(arcade.Window):
 		#	self.sprites_list.append(new_projectile)
 
 
-		#elif symbol == arcade.key.N:
-		#	debris_vel = 0.3
-		#	debris_x = random.uniform(self.canvas_info[0] - 300, self.canvas_info[0] + 300)
-		#	debris_y = random.uniform(self.canvas_info[1] - 300, self.canvas_info[1] + 300)
-		#	debris_vel = [math.cos(random.uniform(-1*math.pi,math.pi))*debris_vel, math.sin(random.uniform(-1*math.pi,math.pi))*debris_vel]
-		#	new_debris = Classes.debris(debris_x, debris_y, debris_vel, "Images/debris.png", self.canvas_info)
-		#	self.debris_list.append(new_debris)
-		#	self.sprites_list.append(new_debris)
-		#	self.satellite.give_objective(new_debris)
+		elif symbol == arcade.key.N:
+			self.satellite.give_objective(functions.find_crossing_times(self.satellite,self.debris_list,10*u.d))
 
 		#Display coordinates of objects
 		elif symbol == arcade.key.D:
@@ -355,6 +351,8 @@ def main():
 	if False:
 		test.main()
 	else:
+
+
 		game = MyGame(SCREEN_WIDTH,SCREEN_HEIGHT)
 		game.setup()
 
