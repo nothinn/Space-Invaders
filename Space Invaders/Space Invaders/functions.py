@@ -440,7 +440,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 					collision_angle = -(collision_angle%360)
 				
 				if collision_angle < accept_angle and collision_angle > -accept_angle: #succes
-					result_list[index_count].append((gradiant_time - j*1*u.s , collision_angle, aim_angle))#SAVE SUCCES
+					result_list[index_count].append((gradiant_time - j*1*u.s , collision_angle, aim_angle, time_to_collision))#SAVE SUCCES
 				else:		#fail
 					result_list[index_count].append(False)
 				
@@ -505,7 +505,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 						collision_angle = -(collision_angle%360)
 				
 					if collision_angle < accept_angle and collision_angle > -accept_angle:#SAVE SUCCES
-						result_list[index_count].append((gradiant_time + gradiant_diff - j*1*u.s, collision_angle, aim_angle))
+						result_list[index_count].append((gradiant_time + gradiant_diff - j*1*u.s, collision_angle, aim_angle, time_to_collision))
 					else: # fail
 						result_list[index_count].append(False)
 					continue
@@ -574,7 +574,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 						collision_angle = -(collision_angle%360)
 				
 					if collision_angle < accept_angle and collision_angle > -accept_angle: #save sucess
-						result_list[index_count].append((gradiant_time - gradiant_diff - j*1*u.s, collision_angle, aim_angle))						
+						result_list[index_count].append((gradiant_time - gradiant_diff - j*1*u.s, collision_angle, aim_angle, time_to_collision))						
 					else: # fail
 						result_list[index_count].append(False)
 					continue
@@ -645,7 +645,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 						collision_angle = -(collision_angle%360)
 				
 					if collision_angle < accept_angle and collision_angle > -accept_angle: #SAVE SUCCES
-						result_list[index_count].append((gradiant_time - j*1*u.s, collision_angle, aim_angle))
+						result_list[index_count].append((gradiant_time - j*1*u.s, collision_angle, aim_angle, time_to_collision))
 					
 						break
 					else: #failure
@@ -666,8 +666,8 @@ def find_crossing_times(satellite, debris_list, seek_time):
 	# The result is a list of list the outer list has a entry for every piece of debris. It has the value False, if this debris orbits in the same direction as the satellite.
 	# If the debris orbits in the oppeset direction this index is a list of sampling point where the code has tried to find an point in the orbit where i can hit the debris.
 	# this outer list has an entry for every sampling point. An entry is set to False if no point could be found in search space. If a point is found this entry will have the
-	# value (delta time, collision angle, aim angle) -> where the delta time, is the time from the search started to the satellite should shoot. collision angle is the angle
-	# collison where 0 degrees is head on. the aim angle is the angle that the satellite should shoot the debris.
+	# value (delta time, collision angle, aim angle, time_to_collision) -> where the delta time, is the time from the search started to the satellite should shoot. collision angle is the angle
+	# collison where 0 degrees is head on. the aim angle is the angle that the satellite should shoot the debris. Time_to_collision is how long it takes from shooting to hitting.
 
 	satellite.orbit = old_version
 	return result_list

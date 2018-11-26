@@ -323,6 +323,11 @@ class MyGame(arcade.Window):
 				self.old_TIME_MULTIPLIER = self.TIME_MULTIPLIER
 				self.TIME_MULTIPLIER = (self.satellite.time_to_shoot / delta_time*u.s).value
 				self.slowed = True
+
+			if(self.satellite.time_to_hit < delta_time * self.TIME_MULTIPLIER * u.s):
+				self.old_TIME_MULTIPLIER = self.TIME_MULTIPLIER
+				self.TIME_MULTIPLIER = (self.satellite.time_to_hit / delta_time*u.s).value
+				self.slowed = True
 			
 
 			self.total_time += delta_time * self.TIME_MULTIPLIER

@@ -163,6 +163,8 @@ class satellite(arcade.Sprite):
 		self.has_objective = False
 		self.angle_goal = 0
 		self.time_to_shoot = float("inf")*u.s
+		self.time_to_hit = float("inf")*u.s
+
 
 		r = [0, 6371+1100, 0]
 		v = [7304.048234, 0, 0]
@@ -207,6 +209,8 @@ class satellite(arcade.Sprite):
 		self.set_vel_vector()
 		#Update the time to shoot:
 		self.time_to_shoot -= delta_time*u.s
+		self.time_to_hit -= delta_time*u.s
+
 
 		self.center_x, self.center_y = functions.get_canvas_pos(self.model_x, self.model_y, canvas_info)
 	
@@ -253,15 +257,13 @@ class satellite(arcade.Sprite):
 
 		aim_angle = first_to_shoot[2]
 
-		print(first_to_shoot[0])
-		print(first_to_shoot[1])
-		print(first_to_shoot[2])
+
+		self.time_to_hit = first_to_shoot[3]
 
 
 		#Insert calculation for finding the angle the satellite should have
 		self.start_rotation(aim_angle.value)
 		
-		#Insert calculation for finding the time to shoot
 		self.time_to_shoot = wait_time
 
 	def get_projectile(self, mass = 1*u.kg):
