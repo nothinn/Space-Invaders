@@ -201,6 +201,8 @@ class satellite(arcade.Sprite):
 		self.orbit = self.orbit.propagate(delta_time * u.s)
 		self.model_x, self.model_y = functions.orbit_to_position(self.orbit)
 		self.set_vel_vector()
+		#Update the time to shoot:
+		self.time_to_shoot -= delta_time*u.s
 
 		self.center_x, self.center_y = functions.get_canvas_pos(self.model_x, self.model_y, canvas_info)
 	
@@ -228,8 +230,6 @@ class satellite(arcade.Sprite):
 				else:
 					self.rotate(delta_time,-movement)
 
-			#Update the time to shoot:
-			self.time_to_shoot -= delta_time
 
 
 
@@ -247,7 +247,7 @@ class satellite(arcade.Sprite):
 		aim_angle = first_to_shoot[2]
 
 		#Insert calculation for finding the angle the satellite should have
-		self.angle_goal = aim_angle
+		self.start_rotation(aim_angle.value)
 		
 		#Insert calculation for finding the time to shoot
 		self.time_to_shoot = wait_time

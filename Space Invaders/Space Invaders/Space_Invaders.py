@@ -259,7 +259,7 @@ class MyGame(arcade.Window):
 		time_list = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
 		#Write text on the screen in the top left corner
-		arcade.draw_text("Number of debris: {}\nNumber of nets: {}\nNumber of netted debris: {}\nTime: {}\nTime multiplier{}".format(len(self.debris_list),len(self.projectile_list),len(self.netted_debris_list),(time_list),self.TIME_MULTIPLIER),
+		arcade.draw_text("Number of debris: {}\nNumber of nets: {}\nNumber of netted debris: {}\nTime: {}\nTime multiplier:{}\nTimeToShoot:{}".format(len(self.debris_list),len(self.projectile_list),len(self.netted_debris_list),(time_list),self.TIME_MULTIPLIER,self.satellite.time_to_shoot),
                          10, SCREEN_HEIGHT -10, arcade.color.BLACK, 12, anchor_x="left", anchor_y="top")
 
 		
