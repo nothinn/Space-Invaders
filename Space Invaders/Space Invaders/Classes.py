@@ -258,7 +258,7 @@ class satellite(arcade.Sprite):
 		aim_angle = first_to_shoot[2]
 
 
-		self.time_to_hit = first_to_shoot[3]
+		self.time_to_hit = first_to_shoot[3] + wait_time
 
 
 		#Insert calculation for finding the angle the satellite should have

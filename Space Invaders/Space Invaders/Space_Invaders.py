@@ -325,10 +325,12 @@ class MyGame(arcade.Window):
 				self.slowed = True
 
 			if(self.satellite.time_to_hit < delta_time * self.TIME_MULTIPLIER * u.s):
-				self.old_TIME_MULTIPLIER = self.TIME_MULTIPLIER
+				self.old_TIME_MULTIPLIER = 1# Slow way down when nearing something to hit self.TIME_MULTIPLIER
 				self.TIME_MULTIPLIER = (self.satellite.time_to_hit / delta_time*u.s).value
+				self.satellite.time_to_hit = float("inf")*u.s
 				self.slowed = True
 			
+				
 
 			self.total_time += delta_time * self.TIME_MULTIPLIER
 			if self.center_option:
