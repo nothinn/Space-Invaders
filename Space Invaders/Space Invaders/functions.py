@@ -419,13 +419,11 @@ def find_crossing_times(satellite, debris_list, seek_time):
 				if collision_angle < -180:
 					collision_angle = -(collision_angle%360)
 				
-				if collision_angle < accept_angle and collision_angle > -accept_angle:
-					print("succes")
-					result_list[index_count].append((gradiant_time - j*1*u.s , collision_angle, aim_angle))
-				else:
-					print("failed")
+				if collision_angle < accept_angle and collision_angle > -accept_angle: #succes
+					result_list[index_count].append((gradiant_time - j*1*u.s , collision_angle, aim_angle))#SAVE SUCCES
+				else:		#fail
 					result_list[index_count].append(False)
-				#SAVE SUCCES
+				
 				continue
 
 			#We test edge case for this samples search interval
@@ -484,19 +482,14 @@ def find_crossing_times(satellite, debris_list, seek_time):
 					if collision_angle < -180:
 						collision_angle = -(collision_angle%360)
 				
-					if collision_angle < accept_angle and collision_angle > -accept_angle:
-						print("succes")
+					if collision_angle < accept_angle and collision_angle > -accept_angle:#SAVE SUCCES
 						result_list[index_count].append((gradiant_time + gradiant_diff - j*1*u.s, collision_angle, aim_angle))
-						#SAVE SUCCES
-					else:
-						print("failed")
+					else: # fail
 						result_list[index_count].append(False)
 					continue
 
-				if slobe <= 0*u.m:
-					print("Not here")
+				if slobe <= 0*u.m: #failure
 					continue
-					#decide what to do with failure
 				else: # sets intial parameters for gradient decent - binary search style
 					#Gradiant decent in posative direction
 					gradiant_diff *= 0.5
@@ -556,20 +549,14 @@ def find_crossing_times(satellite, debris_list, seek_time):
 					if collision_angle < -180:
 						collision_angle = -(collision_angle%360)
 				
-					if collision_angle < accept_angle and collision_angle > -accept_angle:
-						print("succes")
-						result_list[index_count].append((gradiant_time - gradiant_diff - j*1*u.s, collision_angle, aim_angle))
-					#SAVE SUCCES
-						
-					else:
-						print("failed")
+					if collision_angle < accept_angle and collision_angle > -accept_angle: #save sucess
+						result_list[index_count].append((gradiant_time - gradiant_diff - j*1*u.s, collision_angle, aim_angle))						
+					else: # fail
 						result_list[index_count].append(False)
 					continue
 
-				if slobe > 0*u.m:
-					print("Not here")
+				if slobe > 0*u.m: #failure
 					continue
-					#decide what to do with failure
 				else:# sets intial parameters for gradient decent - binary search style
 					#Gradiant decent in negative direction
 					gradiant_diff *= 0.5
@@ -631,13 +618,11 @@ def find_crossing_times(satellite, debris_list, seek_time):
 					if collision_angle < -180:
 						collision_angle = -(collision_angle%360)
 				
-					if collision_angle < accept_angle and collision_angle > -accept_angle:
-						print("succes")
+					if collision_angle < accept_angle and collision_angle > -accept_angle: #SAVE SUCCES
 						result_list[index_count].append((gradiant_time - j*1*u.s, collision_angle, aim_angle))
-					#SAVE SUCCES
+					
 						break
-					else:
-						print("failed")
+					else: #failure
 						result_list[index_count].append(False)
 						break
 				
