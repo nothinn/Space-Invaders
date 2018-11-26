@@ -158,7 +158,7 @@ class satellite(arcade.Sprite):
 		#Setup values needed for updating the satelllite
 		self.has_objective = False
 		self.angle_goal = 0
-		self.time_to_shoot = float("inf")
+		self.time_to_shoot = float("inf")*u.s
 
 		r = [0, 6371+1100, 0]
 		v = [7304.048234, 0, 0]
@@ -240,7 +240,11 @@ class satellite(arcade.Sprite):
 	def give_objective(self, possibilities):
 		self.has_objective = True
 
-		wait_time, aim_angle = functions.get_first_shoot(possibilities)
+		first_to_shoot = functions.get_first_shoot(possibilities)
+
+		wait_time = first_to_shoot[0]
+
+		aim_angle = first_to_shoot[2]
 
 		#Insert calculation for finding the angle the satellite should have
 		self.angle_goal = aim_angle
