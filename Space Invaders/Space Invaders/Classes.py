@@ -51,7 +51,8 @@ class debris(arcade.Sprite):
 		self.model_y = y * u.km
 		self.center_x, self.center_y = functions.get_canvas_pos(x, y, canvas_info) #center is the postion on canvas
 		self.vel_vector = vel_vector
-
+		self.speed = 0 
+		self.altitude = 0
 
 		#Create an orbit object, which a debris is.
 		r = [-6045, -3490, 2500]
@@ -64,6 +65,8 @@ class debris(arcade.Sprite):
 
 	def set_vel_vector(self):
 		vel_from_orbit = self.orbit.state.v.to(u.m / u.s)
+		speed_vector = self.orbit.state.v
+		self.speed = round(math.sqrt((speed_vector[0].value*1000)**2 + (speed_vector[1].value*1000)**2),3) #m/s
 		self.vel_vector[0] = vel_from_orbit[0]
 		self.vel_vector[1] = vel_from_orbit[1]
 
@@ -79,6 +82,7 @@ class debris(arcade.Sprite):
 		#self.model_x += self.vel_vector[0]*delta_time
 		#self.model_y += self.vel_vector[1]*delta_time
 
+		self.altitude = round(math.sqrt((self.model_x.value)**2 + (self.model_y.value)**2) - 6371, 3)
 
 		#We move the debris a certain time.
 		self.orbit = self.orbit.propagate(delta_time * u.s)
@@ -151,6 +155,7 @@ class satellite(arcade.Sprite):
 		self.center_x = 300 #center is the postion on canvas
 		self.center_y = 300
 		self.vel_vector = [0, 0]
+		self.speed = 0
 		self.angle = 0
 		self.mass = 440 # kg - from new horizons
 		self.radius_to_thruster = 1.2 #m - distance from center of mass og new horizons to is rotation thruster
@@ -174,9 +179,10 @@ class satellite(arcade.Sprite):
 
 	def set_vel_vector(self):
 		vel_from_orbit = self.orbit.state.v.to(u.m / u.s)
+		speed_vector = self.orbit.state.v
+		self.speed = round(math.sqrt((speed_vector[0].value*1000)**2 + (speed_vector[1].value*1000)**2),3) #m/s
 		self.vel_vector[0] = vel_from_orbit[0]
 		self.vel_vector[1] = vel_from_orbit[1]
-
 		self.model_x, self.model_y = functions.orbit_to_position(self.orbit)
 
 	def __eq__(self, other):

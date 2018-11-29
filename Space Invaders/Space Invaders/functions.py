@@ -377,6 +377,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 			start_time = (seek_time_unit/(int(nr_of_crossings.value)*2)) * i 
 			time_increments = seek_time_unit/(int(nr_of_crossings.value)*2)
 
+			gradient_decent = True
 			gradiant_time = start_time
 			gradiant_diff = time_increments/2
 
@@ -435,18 +436,10 @@ def find_crossing_times(satellite, debris_list, seek_time):
 
 				collision_angle = aim_angle.value - debris_angle_flip
 
-				satellite_vec_angle = (np.arctan2(satellite_temp.vel_vector[1], satellite_temp.vel_vector[0]).to(u.deg).value % 360) * u.deg
-
-				aim_dif = aim_angle - satellite_vec_angle
-				if aim_dif.value < 0:
-					aim_dif = (aim_dif.value%360) * u.deg
-				elif aim_dif.value > 180:
-					aim_dif = -(aim_dif.value - 360) * u.deg
-
 				if collision_angle < -180:
 					collision_angle = -(collision_angle%360)
 				
-				if collision_angle < accept_angle and collision_angle > -accept_angle and aim_dif < 90 * u.deg and aim_dif > -90 * u.deg: #succes
+				if collision_angle < accept_angle and collision_angle > -accept_angle: #succes
 					result_list[index_count].append((gradiant_time - j*1*u.s , collision_angle, aim_angle, time_to_collision))#SAVE SUCCES
 				else:		#fail
 					result_list[index_count].append(False)
@@ -508,18 +501,10 @@ def find_crossing_times(satellite, debris_list, seek_time):
 
 					collision_angle = aim_angle.value - debris_angle_flip
 
-					satellite_vec_angle = (np.arctan2(satellite_temp.vel_vector[1], satellite_temp.vel_vector[0]).to(u.deg).value % 360) * u.deg
-
-					aim_dif = aim_angle - satellite_vec_angle
-					if aim_dif.value < 0:
-						aim_dif = (aim_dif.value%360) * u.deg
-					elif aim_dif.value > 180:
-						aim_dif = -(aim_dif.value - 360) * u.deg
-
 					if collision_angle < -180:
 						collision_angle = -(collision_angle%360)
 				
-					if collision_angle < accept_angle and collision_angle > -accept_angle and aim_dif < 90*u.deg and aim_dif > -90 * u.deg:#SAVE SUCCES
+					if collision_angle < accept_angle and collision_angle > -accept_angle:#SAVE SUCCES
 						result_list[index_count].append((gradiant_time + gradiant_diff - j*1*u.s, collision_angle, aim_angle, time_to_collision))
 					else: # fail
 						result_list[index_count].append(False)
@@ -585,18 +570,10 @@ def find_crossing_times(satellite, debris_list, seek_time):
 
 					collision_angle = aim_angle.value - debris_angle_flip
 
-					satellite_vec_angle = (np.arctan2(satellite_temp.vel_vector[1], satellite_temp.vel_vector[0]).to(u.deg).value % 360) * u.deg
-
-					aim_dif = aim_angle - satellite_vec_angle
-					if aim_dif.value < 0:
-						aim_dif = (aim_dif.value%360) * u.deg
-					elif aim_dif.value > 180:
-						aim_dif = -(aim_dif.value - 360) * u.deg
-
 					if collision_angle < -180:
 						collision_angle = -(collision_angle%360)
 				
-					if collision_angle < accept_angle and collision_angle > -accept_angle and aim_dif < 90 * u.deg and aim_dif > -90 * u.deg: #save sucess
+					if collision_angle < accept_angle and collision_angle > -accept_angle: #save sucess
 						result_list[index_count].append((gradiant_time - gradiant_diff - j*1*u.s, collision_angle, aim_angle, time_to_collision))						
 					else: # fail
 						result_list[index_count].append(False)
@@ -610,7 +587,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 					gradiant_time -= gradiant_diff
 
 			
-			while True: #Binary search style
+			while gradient_decent: #Binary search style
 				sat_orbit_copy = satellite.orbit.propagate(gradiant_time)
 				deb_orbit_copy = debris.orbit.propagate(gradiant_time)
 
@@ -664,18 +641,10 @@ def find_crossing_times(satellite, debris_list, seek_time):
 
 					collision_angle = aim_angle.value - debris_angle_flip
 
-					satellite_vec_angle = (np.arctan2(satellite_temp.vel_vector[1], satellite_temp.vel_vector[0]).to(u.deg).value % 360) * u.deg
-
-					aim_dif = aim_angle - satellite_vec_angle
-					if aim_dif.value < 0:
-						aim_dif = (aim_dif.value%360) * u.deg
-					elif aim_dif.value > 180:
-						aim_dif = -(aim_dif.value - 360) * u.deg
-
 					if collision_angle < -180:
 						collision_angle = -(collision_angle%360)
 				
-					if collision_angle < accept_angle and collision_angle > -accept_angle and aim_dif < 90 * u.deg and aim_dif > -90 * u.deg: #SAVE SUCCES
+					if collision_angle < accept_angle and collision_angle > -accept_angle: #SAVE SUCCES
 						result_list[index_count].append((gradiant_time - j*1*u.s, collision_angle, aim_angle, time_to_collision))
 					
 						break

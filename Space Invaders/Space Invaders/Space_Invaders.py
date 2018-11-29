@@ -42,7 +42,7 @@ class MyGame(arcade.Window):
 		self.total_time = 0.0
 
 		# for canvas center and zoom factor - relative to model coordinate system
-		self.canvas_info = [0, 0, 1/32768, 1]
+		self.canvas_info = [0, 0, 1/32768]
 
 		self.center_option = False # False satellite is center, True Earth is center
 
@@ -75,7 +75,7 @@ class MyGame(arcade.Window):
 		self.sprites_list.append(self.satellite)
 	
 		#Generate earth
-		self.earth = Classes.earth("Images/earth.png",0.82)
+		self.earth = Classes.earth("Images/earth.png",0)
 		self.sprites_list.append(self.earth)
 
 
@@ -147,32 +147,10 @@ class MyGame(arcade.Window):
 		#zoom in
 		elif symbol == arcade.key.I: 
 			self.canvas_info[2] *= 2
-			self.canvas_info[3] += 1
-			self.earth.kill()
-
-			if(self.canvas_info[3] < 0):
-				self.earth = Classes.earth("Images/earth.png",0.82 * ( 1 / (-4 * self.canvas_info[3])))
-			elif(self.canvas_info[3] == 0):
-				self.earth = Classes.earth("Images/earth.png",0.82 * 0.5)
-			else:
-				self.earth = Classes.earth("Images/earth.png",0.82 * self.canvas_info[3])
-
-			self.sprites_list.append(self.earth)
 			
 		#zoom out
 		elif symbol == arcade.key.O: 
 			self.canvas_info[2] *= 0.5
-			self.canvas_info[3] -= 1
-			self.earth.kill()
-
-			if(self.canvas_info[3] < 0):
-				self.earth = Classes.earth("Images/earth.png",0.82 * ( 1 / (-4 * self.canvas_info[3])))
-			elif(self.canvas_info[3] == 0):
-				self.earth = Classes.earth("Images/earth.png",0.82 * 0.5)
-			else:
-				self.earth = Classes.earth("Images/earth.png",0.82 * self.canvas_info[3])
-
-			self.sprites_list.append(self.earth)
 
 		#Create random debris
 		elif symbol == arcade.key.C:
@@ -252,6 +230,21 @@ class MyGame(arcade.Window):
 	def on_draw(self):
 		arcade.start_render()
 
+		#Draw Earth and Karman line
+		arcade.draw_circle_filled(self.earth.center_x, self.earth.center_y, 6371 * 1000 * self.canvas_info[2] , arcade.color.BLUE)
+		if(self.display_karman_line):
+			arcade.draw_circle_outline(self.earth.center_x, self.earth.center_y, (120 + 6371) * 1000 * self.canvas_info[2] , arcade.color.CYAN, 1)
+			arcade.draw_circle_outline(self.earth.center_x, self.earth.center_y, (2000 + 6371) * 1000 * self.canvas_info[2] , arcade.color.CYBER_GRAPE, 1)
+
+		#Draw all sprites
+		self.sprites_list.draw()
+
+		#Draw coordinates for nets & debris
+		if(self.display_coordinates):
+			for x in self.debris_list:
+				if(x != self.satellite):
+					arcade.draw_text("    [{}]km\n    [{}]m/s".format(x.altitude, x.speed), x.center_x, x.center_y, arcade.color.BLACK, 8)
+
 		# Calculate time
 		hours = int(self.total_time) // 3600
 		minutes = int(self.total_time) // 60 % 60
@@ -260,10 +253,19 @@ class MyGame(arcade.Window):
 		time_list = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
 		#Write text on the screen in the top left corner
-		arcade.draw_text("Number of debris: {}\nNumber of nets: {}\nNumber of netted debris: {}\nTime: {}\nTime multiplier:{}\nTimeToShoot:{}".format(len(self.debris_list),len(self.projectile_list),len(self.netted_debris_list),(time_list),self.TIME_MULTIPLIER,self.satellite.time_to_shoot),
-                         10, SCREEN_HEIGHT -10, arcade.color.BLACK, 12, anchor_x="left", anchor_y="top")
+		arcade.draw_text("Number of debris: {}\nNumber of nets: {}\nNumber of netted debris: {}\nTime: {}\nTime multiplier: {}\nTimeToShoot: {}\nSatellite weight: {}kg\nSatellite angle: {}°\nSatellite speed: {}m/s".
+				   format(
+					len(self.debris_list),
+					len(self.projectile_list),
+					len(self.netted_debris_list),
+					(time_list),
+					self.TIME_MULTIPLIER,
+					self.satellite.time_to_shoot,
+					self.satellite.mass,
+					round(self.satellite.angle, 2),
+					self.satellite.speed
+					),10, SCREEN_HEIGHT -10, arcade.color.BLACK, 12, anchor_x="left", anchor_y="top")
 
-		
 		#Update scale when zooming
 		middle_scale = 75/self.canvas_info[2]
 		right_scale = 150/self.canvas_info[2]
@@ -293,19 +295,6 @@ class MyGame(arcade.Window):
 		arcade.draw_text(str_right_scale, 148, 18, arcade.color.BLACK, 8)
 
 
-
-		#Draw all sprites
-		self.sprites_list.draw()
-
-		#Draw coordinates for nets & debris
-		if(self.display_coordinates):
-			for x in self.debris_list:
-				if(x != self.satellite):
-					arcade.draw_text("    [{}]\n    [{}]".format(round(x.center_x,3), round(x.center_y,3)), x.center_x, x.center_y, arcade.color.BLACK, 8)
-
-		if(self.display_karman_line):
-			arcade.draw_circle_outline(self.earth.center_x, self.earth.center_y, (120 + 6371) * 1000 * self.canvas_info[2] , arcade.color.CYAN, 1)
-			arcade.draw_circle_outline(self.earth.center_x, self.earth.center_y, (2000 + 6371) * 1000 * self.canvas_info[2] , arcade.color.CYBER_GRAPE, 1)
 
 
 	def update(self, delta_time):
