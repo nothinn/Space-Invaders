@@ -51,7 +51,7 @@ def main():
 
 	#print(optimal_impact(ss_orig))
 
-	#heatmap_orbit(ss_orig,100,30)
+	#heatmap_orbit(ss_orig,1000,300)
 
 
 	heatmap_debris_net()
@@ -302,7 +302,7 @@ def heatmap_orbit(ss_orig,xticks,yticks):
 			x,y = functions.angle_to_vec_2d(new_angle)
 
 
-			ss = functions.orbit_impulse(ss_prop,[x*10,y*10,0])
+			ss = functions.orbit_impulse(ss_prop,[x*10,y*10,0]*u.m/u.s)
 
 			#The periapsis tells us the closest point to earth.
 			periapsis_radius = ss.r_p
@@ -325,7 +325,7 @@ def heatmap_orbit(ss_orig,xticks,yticks):
 		print(y)
 		print(best_angle)
 
-		ss = functions.orbit_impulse(ss_prop,[x*10,y*10,0])
+		ss = functions.orbit_impulse(ss_prop,[x*10,y*10,0]*u.m/u.s)
 
 
 		#The periapsis tells us the closest point to earth.
@@ -415,7 +415,7 @@ def heatmap_orbit(ss_orig,xticks,yticks):
 		writer.writerows(myData)
 
 
-def heatmap_debris_net():
+def heatmap_debris_net():	
 	earth_radius = 6371 *u.km
 	#Create an orbit object, which a debris is.
 	r = [-6045, -3490, 0]
@@ -436,7 +436,7 @@ def heatmap_debris_net():
 	xlabels = []
 
 	#The weight here is in grams
-	for weight in range(10,100,5):
+	for weight in range(10,100,2):
 
 		print(weight)
 
@@ -447,7 +447,7 @@ def heatmap_debris_net():
 		
 
 		#We test velocities in the range of -1.5 -> 10 km/s
-		for velocity in range(-5000, 5000,500):
+		for velocity in range(-5000, 5000,100):
 			xlabels.append(velocity)
 
 			#Create a net
@@ -477,7 +477,7 @@ def heatmap_debris_net():
 
 		myData.append(dataLine)
 
-	ax = sns.heatmap(myData, linewidth=0,cmap="RdYlGn_r", annot = True, fmt="10.0f", cbar_kws={'label': 'Distance to periapsis minus radius of earth [km]'})
+	ax = sns.heatmap(myData, linewidth=0,cmap="RdYlGn_r", cbar_kws={'label': 'Distance to periapsis minus radius of earth [km]'})
 
 	xticks = ax.get_xticks()
 
