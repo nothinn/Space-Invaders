@@ -87,7 +87,7 @@ def get_angle_between_two_orbits(orbit1, orbit2):
 def orbit_impulse(orbit, vector):
 	
 	dv = [vector[0].value,vector[1].to(vector[0].unit).value, 0]*vector[0].unit
-	print(dv)
+
 
 	#if type(vector) != type([0,0,0]*u.m/u.s):
 	#	dv = vector *u.m/u.s
@@ -433,6 +433,8 @@ def find_crossing_times(satellite, debris_list, seek_time):
 
 				aim_angle = get_angle_between_two_orbits(satellite_temp.orbit, debris_temp.orbit)
 
+				satellite_temp.angle =  aim_angle.value
+
 				collision_angle = aim_angle.value - debris_angle_flip
 
 				satellite_vec_angle = (np.arctan2(satellite_temp.vel_vector[1], satellite_temp.vel_vector[0]).to(u.deg).value % 360) * u.deg
@@ -447,7 +449,9 @@ def find_crossing_times(satellite, debris_list, seek_time):
 					collision_angle = -(collision_angle%360)
 				
 				if collision_angle < accept_angle and collision_angle > -accept_angle and aim_dif < 90 * u.deg and aim_dif > -90 * u.deg: #succes
-					result_list[index_count].append((gradiant_time - j*1*u.s , collision_angle, aim_angle, time_to_collision))#SAVE SUCCES
+					#We can now calculate the weight needed to make it hit the Karman line at this position:
+					weight = weight_needed(debris_temp,satellite_temp)
+					result_list[index_count].append((gradiant_time - j*1*u.s , collision_angle, aim_angle, time_to_collision, weight))#SAVE SUCCES
 				else:		#fail
 					result_list[index_count].append(False)
 				
@@ -506,6 +510,8 @@ def find_crossing_times(satellite, debris_list, seek_time):
 
 					aim_angle = get_angle_between_two_orbits(satellite_temp.orbit, debris_temp.orbit)
 
+					satellite_temp.angle =  aim_angle.value
+
 					collision_angle = aim_angle.value - debris_angle_flip
 
 					satellite_vec_angle = (np.arctan2(satellite_temp.vel_vector[1], satellite_temp.vel_vector[0]).to(u.deg).value % 360) * u.deg
@@ -520,7 +526,8 @@ def find_crossing_times(satellite, debris_list, seek_time):
 						collision_angle = -(collision_angle%360)
 				
 					if collision_angle < accept_angle and collision_angle > -accept_angle and aim_dif < 90*u.deg and aim_dif > -90 * u.deg:#SAVE SUCCES
-						result_list[index_count].append((gradiant_time + gradiant_diff - j*1*u.s, collision_angle, aim_angle, time_to_collision))
+						weight = weight_needed(debris_temp,satellite_temp)
+						result_list[index_count].append((gradiant_time + gradiant_diff - j*1*u.s, collision_angle, aim_angle, time_to_collision,weight))
 					else: # fail
 						result_list[index_count].append(False)
 					continue
@@ -583,6 +590,8 @@ def find_crossing_times(satellite, debris_list, seek_time):
 
 					aim_angle = get_angle_between_two_orbits(satellite_temp.orbit, debris_temp.orbit)
 
+					satellite_temp.angle =  aim_angle.value
+
 					collision_angle = aim_angle.value - debris_angle_flip
 
 					satellite_vec_angle = (np.arctan2(satellite_temp.vel_vector[1], satellite_temp.vel_vector[0]).to(u.deg).value % 360) * u.deg
@@ -597,7 +606,8 @@ def find_crossing_times(satellite, debris_list, seek_time):
 						collision_angle = -(collision_angle%360)
 				
 					if collision_angle < accept_angle and collision_angle > -accept_angle and aim_dif < 90 * u.deg and aim_dif > -90 * u.deg: #save sucess
-						result_list[index_count].append((gradiant_time - gradiant_diff - j*1*u.s, collision_angle, aim_angle, time_to_collision))						
+						weight = weight_needed(debris_temp,satellite_temp)
+						result_list[index_count].append((gradiant_time - gradiant_diff - j*1*u.s, collision_angle, aim_angle, time_to_collision,weight))						
 					else: # fail
 						result_list[index_count].append(False)
 					continue
@@ -662,6 +672,8 @@ def find_crossing_times(satellite, debris_list, seek_time):
 
 					aim_angle = get_angle_between_two_orbits(satellite_temp.orbit, debris_temp.orbit)
 
+					satellite_temp.angle =  aim_angle.value
+
 					collision_angle = aim_angle.value - debris_angle_flip
 
 					satellite_vec_angle = (np.arctan2(satellite_temp.vel_vector[1], satellite_temp.vel_vector[0]).to(u.deg).value % 360) * u.deg
@@ -676,7 +688,8 @@ def find_crossing_times(satellite, debris_list, seek_time):
 						collision_angle = -(collision_angle%360)
 				
 					if collision_angle < accept_angle and collision_angle > -accept_angle and aim_dif < 90 * u.deg and aim_dif > -90 * u.deg: #SAVE SUCCES
-						result_list[index_count].append((gradiant_time - j*1*u.s, collision_angle, aim_angle, time_to_collision))
+						weight = weight_needed(debris_temp,satellite_temp)
+						result_list[index_count].append((gradiant_time - j*1*u.s, collision_angle, aim_angle, time_to_collision,weight))
 					
 						break
 					else: #failure
@@ -714,5 +727,75 @@ def get_first_shoot(search_list):
 				else:
 					return entry
 	return False
+
+def get_lightest_shot(search_list):
+	lowest_weight = 10000*u.kg
+	best = False
+	for debris_info in search_list:
+		if debris_info != False:
+			for entry in debris_info:
+				if entry != False:
+					#If the fourth entry weighs less than the best, we take that instead.
+					if entry[4] < lowest_weight:
+						lowest_weight = entry[4]
+						best = entry
+	return best
+
+def print_best_shots(search_list):
+	for debris_info in search_list:
+		if debris_info == False:
+			print("No hit")
+		else:
+			for entry in debris_info:
+				if entry != False:
+					print(entry)
+
 			
 	
+def weight_needed(debris,satellite):
+
+	#Goal is the karman line and 5 km within for full impact
+	goal = 6371 *u.km+ 120*u.km - 5*u.km
+
+	#We start with a 10 gram projectile
+	weight = 10*u.g
+
+	#We use the mass of the debris as a rule for how much to change the weight of the projectile.
+	weight_change = debris.mass / 100
+	
+	#The first distance is the original periapsis of the debris
+	distance = debris.orbit.r_p
+
+	iterations = 0
+	#We continue until we reach within the karman line.
+	while(True):
+		if iterations > 100:
+			weight = 100000000*u.kg
+			break
+
+		last_distance = distance
+		iterations += 1
+
+		projectile = satellite.get_projectile(weight)
+
+		vel_vec = velocity_change(projectile,debris)
+	
+		new_orbit = orbit_impulse(debris.orbit,vel_vec)
+
+		distance = new_orbit.r_p
+
+		#We do a sort of binary search
+		#When too far from earth, we add weight
+		if distance > goal:
+			weight += weight_change
+
+		#We stop when we hit within 5 km of the karman line.
+		elif distance > goal - 15*u.km:
+			break
+		#When it is too close to earth, we remove weight instead.
+		else:
+			weight -= weight_change
+			weight_change /= 2
+
+	print(iterations)
+	return weight

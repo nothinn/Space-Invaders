@@ -23,14 +23,11 @@ class netted_debris():
 	def __init__(self, projectile, debris):
 		self.projectile = projectile
 		self.debris = debris
-		print(debris.orbit.r_p)
-		self.debris.orbit = functions.orbit_impulse(debris.orbit, functions.velocity_change(projectile, debris))
-		print(self.debris.orbit.r_p)
-		print(self.projectile.mass)
 
-		#new_vel_vector = debris.vel_vector
-		#projectile.vel_vector = new_vel_vector
-		#debris.vel_vector = new_vel_vector
+
+		self.debris.orbit = functions.orbit_impulse(debris.orbit, functions.velocity_change(projectile, debris))
+
+		print(self.debris.orbit.r_p - 6371*u.km)
 
 	def update(self, delta_time, canvas_info):
 		self.debris.update(delta_time, canvas_info)
@@ -74,7 +71,7 @@ class debris(arcade.Sprite):
 
 	def give_impulse(self):
 		
-		print(functions.get_vector_orbit(self.orbit))
+		#print(functions.get_vector_orbit(self.orbit))
 		self.orbit = functions.orbit_impulse(self.orbit,[100,0,0])
 
 
@@ -106,8 +103,8 @@ class projectile(arcade.Sprite):
 			print("Projectile called without units")
 		
 
-		print(x)
-		print(y)
+		#print(x)
+		#print(y)
 		self.model_x = x #model is the postion in the background model
 		self.model_y = y
 		self.center_x, self.center_y = functions.get_canvas_pos(x, y, canvas_info) #center is the postion on canvas
@@ -254,7 +251,7 @@ class satellite(arcade.Sprite):
 	def give_objective(self, possibilities):
 		self.has_objective = True
 
-		first_to_shoot = functions.get_first_shoot(possibilities)
+		first_to_shoot = functions.get_lightest_shot(possibilities)
 
 		if first_to_shoot == False:
 			
@@ -264,15 +261,19 @@ class satellite(arcade.Sprite):
 		aim_angle = first_to_shoot[2]
 
 
-		self.time_to_hit = first_to_shoot[3] + wait_time
+		self.time_to_hit = first_to_shoot[3] + wait_time - 5*u.s
 
+		self.weight_objective = first_to_shoot[4]
 
 		#Insert calculation for finding the angle the satellite should have
 		self.start_rotation(aim_angle.value)
 		
 		self.time_to_shoot = wait_time
 
-	def get_projectile(self, mass = 1*u.kg):
+	def get_projectile(self, mass = None):
+
+		if mass == None:
+			mass = self.weight_objective
 
 		#We change the angle to be in the angle of the satellite
 		angle = self.angle
@@ -281,16 +282,13 @@ class satellite(arcade.Sprite):
 		vel_vector = functions.get_vector_orbit(self.orbit)
 		velocity = np.sqrt(vel_vector[0]**2 + vel_vector[1]**2)
 
-		print(velocity)
 		#We convert the angle to vector:
 		new_vector = functions.angle_to_vec_2d(angle)
 
-		print(new_vector)
 		#And multiply by the velocity
 		new_vector *= velocity
 
-		print(new_vector)
 
 		shot = projectile(0.5,self.model_x, self.model_y,vel_vector = new_vector,mass = mass, canvas_info=self.canvas_info)
-		print(shot)
+
 		return shot
