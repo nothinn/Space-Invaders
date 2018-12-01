@@ -130,6 +130,9 @@ class MyGame(arcade.Window):
 			functions.print_best_shots(possibilities)
 			self.satellite.give_objective(possibilities)
 
+
+			functions.plot_result(possibilities)
+
 		#Display coordinates of objects
 		elif symbol == arcade.key.D:
 			if(self.display_coordinates):

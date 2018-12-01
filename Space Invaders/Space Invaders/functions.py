@@ -16,6 +16,8 @@ from poliastro.plotting import plot
 
 from astropy import units as u
 
+import matplotlib.pyplot as plt
+
 def collision(projectile, debris):
 
 	if abs(projectile.model_x - debris.model_x) < 10000 * u.m:
@@ -252,7 +254,7 @@ def get_random_ellipse_orbit():
 	G = 6.67408*10**-11 #Gravitational constant m^3*kg^-1*s^-2
 	M_e = 5.9722*10**24 #mass of earth kg 
 	cirular_abs_vel = math.sqrt((G*M_e) / (r_length*10**3))
- 
+
 
 	ran_add_angle = random.uniform(-0.0125, 0.0125)*((r_length-Er)/200) #different amount of ellipticallity is allowed for different radiuses
 	ran_seed = random.uniform(-1.0, 1.0)
@@ -799,3 +801,41 @@ def weight_needed(debris,satellite):
 
 	print(iterations)
 	return weight
+
+
+from numpy.random import rand
+
+
+def plot_result(crossing_times):
+	
+	plt.ion()
+	fig, ax = plt.subplots()
+
+	
+	labels = np.zeros((len(crossing_times),1))
+	for count, debris in enumerate( crossing_times):
+		#What to write in the label
+		labels[count] =str(count)
+
+
+	for count, debris in enumerate( crossing_times):
+		if debris != False:
+			x = []
+			y = []
+			for collision in debris:
+				if collision != False:
+					x.append(collision[0].value) # Time to shoot
+					y.append(collision[4].value) # Weight needed
+
+
+			if len(x) > 0:
+				print(x,y)
+				ax.scatter(np.asarray(x),np.asarray(y), label = labels[count])
+
+	ax.legend()
+	ax.set_xlabel("Time to shoot [seconds]")
+	ax.set_ylabel("Weight needed [g]")
+
+	ax.grid(True)
+
+	plt.pause(0.001)
