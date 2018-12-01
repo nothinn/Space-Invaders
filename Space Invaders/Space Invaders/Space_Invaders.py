@@ -127,7 +127,7 @@ class MyGame(arcade.Window):
 			possibilities = functions.find_crossing_times(self.satellite,self.debris_list,86400)
 
 			self.skip_update = True
-
+			functions.print_best_shots(possibilities)
 			self.satellite.give_objective(possibilities)
 
 		#Display coordinates of objects
@@ -253,7 +253,7 @@ class MyGame(arcade.Window):
 		time_list = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
 		#Write text on the screen in the top left corner
-		arcade.draw_text("Number of debris: {}\nNumber of nets: {}\nNumber of netted debris: {}\nTime: {}\nTime multiplier: {}\nTimeToShoot: {}\nSatellite weight: {}kg\nSatellite angle: {}°\nSatellite speed: {}m/s".
+		arcade.draw_text("Number of debris: {}\nNumber of nets: {}\nNumber of netted debris: {}\nTime: {}\nTime multiplier: {}\nTimeToShoot: {:4.0f}\nSatellite weight: {}kg\nSatellite angle: {}°\nSatellite speed: {}m/s".
 				   format(
 					len(self.debris_list),
 					len(self.projectile_list),
@@ -306,6 +306,11 @@ class MyGame(arcade.Window):
 			if self.slowed:
 				self.TIME_MULTIPLIER = self.old_TIME_MULTIPLIER
 				self.slowed = False
+			else:
+				if self.satellite.time_to_shoot.value != float("inf"):
+					self.TIME_MULTIPLIER = int(self.satellite.time_to_shoot.value/10)*2
+					if self.TIME_MULTIPLIER < 5:
+						self.TIME_MULTIPLIER = 5
 
 			#See if we move too fast for achieving the satellites objective
 			if(self.satellite.time_to_shoot < delta_time * self.TIME_MULTIPLIER * u.s):
