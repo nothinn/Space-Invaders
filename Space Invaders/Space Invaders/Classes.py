@@ -163,6 +163,8 @@ class satellite(arcade.Sprite):
 		
 		#Setup values needed for updating the satelllite
 		self.has_objective = False
+		self.objective_list = list()
+		self.objective_iterator = 0
 		self.angle_goal = 0
 		self.time_to_shoot = float("inf")*u.s
 		self.time_to_hit = float("inf")*u.s
@@ -204,7 +206,7 @@ class satellite(arcade.Sprite):
 
 		if self.rotation_info[0]:
 			self.angle, self.rotation_info = functions.update_satellite_rotation(self, total_time)
-
+		
 		
 		#We move the debris a certain time.
 		self.orbit = self.orbit.propagate(delta_time * u.s)
@@ -269,6 +271,46 @@ class satellite(arcade.Sprite):
 		self.start_rotation(aim_angle.value)
 		
 		self.time_to_shoot = wait_time
+
+	def give_objectives(self, possibilities):
+		self.has_objective = True
+
+		objective_list = functions.get_ordered_target_list(possibilities)
+
+		if len(objective_list) == 0:
+			self.has_objective = False
+			return
+
+		self.objective_list = objective_list
+		self.give_next_objetive()
+
+	def give_next_objetive(self):
+		if self.has_objective:
+			if self.objective_iterator >= len(self.objective_list):
+				self.has_objective = False
+				self.objective_iterator = 0
+				self.objective_list.clear()
+				self.time_to_shoot = float("inf") * u.s
+			else:
+				if self.objective_iterator == 0:
+					self.weight_objective = self.objective_list[self.objective_iterator][4]
+					self.time_to_shoot = self.objective_list[self.objective_iterator][0] + 0*u.s
+					self.time_to_hit = self.objective_list[self.objective_iterator][3] + self.objective_list[self.objective_iterator][0] - 5*u.s
+					self.start_rotation(self.objective_list[self.objective_iterator][2].value)
+					self.objective_iterator += 1
+					print(self.time_to_shoot)
+					print(self.time_to_hit)
+				else:
+					old_hit_time = self.objective_list[self.objective_iterator - 1][3] + self.objective_list[self.objective_iterator - 1][0]
+
+					self.weight_objective = self.objective_list[self.objective_iterator][4]
+					self.time_to_shoot = self.objective_list[self.objective_iterator][0] - old_hit_time
+					self.time_to_hit = self.objective_list[self.objective_iterator][3] + self.objective_list[self.objective_iterator][0] - old_hit_time - 5*u.s
+					self.start_rotation(self.objective_list[self.objective_iterator][2].value)
+					self.objective_iterator += 1
+					print(self.time_to_shoot)
+					print(self.time_to_hit)
+
 
 	def get_projectile(self, mass = None):
 
