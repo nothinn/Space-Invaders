@@ -278,14 +278,14 @@ def rotate_satellite(satallite, angle_goal, start_time):
 	r = satallite.radius_to_thruster #m
 	F = satallite.rotate_thrust_force #N
 
-	degrees_of_rotation = angle_goal - satallite.angle
+	degrees_of_rotation = angle_goal%360 - satallite.angle
 	if  degrees_of_rotation < 180 and degrees_of_rotation >= 0:
 		aa = F/(m*r) #rad/s^2 angular acceleration
 	elif degrees_of_rotation > 180:
-		degrees_of_rotation = -(degrees_of_rotation - 180)
+		degrees_of_rotation = (degrees_of_rotation%180 - 180)
 		aa = -(F/(m*r))
 	elif degrees_of_rotation < -180:
-		degrees_of_rotation = -(degrees_of_rotation + 180)
+		degrees_of_rotation = (degrees_of_rotation%180)
 		aa = F/(m*r)
 	else:
 		aa = -(F/(m*r))
@@ -691,7 +691,7 @@ def find_crossing_times(satellite, debris_list, seek_time):
 				
 					if collision_angle < accept_angle and collision_angle > -accept_angle and aim_dif < 90 * u.deg and aim_dif > -90 * u.deg: #SAVE SUCCES
 						weight = weight_needed(debris_temp,satellite_temp)
-						result_list[index_count].append((gradiant_time - j*1*u.s, collision_angle, aim_angle, time_to_collision,weight))
+						result_list[index_count].append((gradiant_time - j*1*u.s, collision_angle, aim_angle, time_to_collision, weight))
 					
 						break
 					else: #failure
@@ -839,3 +839,25 @@ def plot_result(crossing_times):
 	ax.grid(True)
 
 	plt.pause(0.001)
+
+	
+def take_time(shoot_info):
+	return shoot_info[0]
+
+def get_ordered_target_list(search_list):
+	light_list = list()
+	for debris_info in search_list: #This for loop makes a list of lightest shots at every debris.
+		if debris_info != False:
+			lowest_weight = 1000 * u.kg
+			for entry in debris_info:
+				if entry != False:
+					#If the fourth entry weighs less than the best, we take that instead.
+					if entry[4] < lowest_weight:
+						lowest_weight = entry[4]
+						best = entry
+			if lowest_weight != 1000 * u.kg:
+				light_list.append(best)
+
+	light_list.sort(key = take_time) #Sorts the list on the time to shoot
+
+	return light_list
