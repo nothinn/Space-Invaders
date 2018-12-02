@@ -861,3 +861,26 @@ def get_ordered_target_list(search_list):
 	light_list.sort(key = take_time) #Sorts the list on the time to shoot
 
 	return light_list
+
+def plot_percentage(tot_debris, ordered_list):
+	x_axis = list()
+	y_axis = list()
+	count = 0
+
+	x_axis.append(0)
+	y_axis.append(0)
+	
+	for entry in ordered_list:
+		count += 1
+		x_axis.append(entry[0].to(u.hour).value)
+		y_axis.append((count/tot_debris) * 100)
+
+	plt.plot(x_axis, y_axis)
+	plt.plot(x_axis, y_axis, 'ro')
+	plt.axis([0, x_axis[-1], 0, 100])
+	plt.xlabel("Time [Hours]")
+	plt.ylabel("Debris Removed [%]")
+	plt.grid(True)
+
+	plt.show()
+
