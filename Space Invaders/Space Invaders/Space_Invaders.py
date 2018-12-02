@@ -59,6 +59,9 @@ class MyGame(arcade.Window):
 		#Used when doing large calculations. The next update will be skipped to avoid time jumping.
 		self.skip_update = False
 
+		# Used for setting up shooting que:
+		self.has_obejtive_que = False
+
 
 	def setup(self):
 
@@ -127,8 +130,10 @@ class MyGame(arcade.Window):
 			possibilities = functions.find_crossing_times(self.satellite,self.debris_list,86400)
 
 			self.skip_update = True
-			functions.print_best_shots(possibilities)
-			self.satellite.give_objective(possibilities)
+			#functions.print_best_shots(possibilities)
+			print(functions.get_ordered_target_list(possibilities))
+			#self.satellite.give_objective(possibilities)
+			self.satellite.give_objectives(possibilities)
 
 
 			functions.plot_result(possibilities)
@@ -180,7 +185,9 @@ class MyGame(arcade.Window):
 
 		#Rotate	satellite to random angle
 		elif symbol == arcade.key.R:
-			self.satellite.start_rotation(random.uniform(0, 360))
+			vinkel = input("write angle")
+			vinkelt_int = int(vinkel)
+			self.satellite.start_rotation(vinkelt_int)
 
 		#Toggle center of screen to be between earth and satellite
 		elif symbol == arcade.key.Y:
@@ -325,7 +332,8 @@ class MyGame(arcade.Window):
 				self.old_TIME_MULTIPLIER = 1# Slow way down when nearing something to hit self.TIME_MULTIPLIER
 				self.TIME_MULTIPLIER = (self.satellite.time_to_hit / delta_time*u.s).value
 				self.satellite.time_to_hit = float("inf")*u.s
-				self.slowed = True
+				#self.satellite.give_next_objetive()
+				self.slowed = True 
 			
 				
 
@@ -341,7 +349,8 @@ class MyGame(arcade.Window):
 				shot = self.satellite.get_projectile()
 				self.projectile_list.append(shot)
 				self.sprites_list.append(shot)
-				self.satellite.time_to_shoot = float("inf")
+				self.satellite.time_to_shoot = float("inf") * u.s
+				
 
 			self.satellite.update(delta_time*self.TIME_MULTIPLIER, self.canvas_info, self.total_time)
 			for member in self.projectile_list:
@@ -368,6 +377,8 @@ class MyGame(arcade.Window):
 						self.netted_debris_list.append(Classes.netted_debris(projectile,debris))
 						self.projectile_list.remove(projectile)
 						self.debris_list.remove(debris)
+
+						self.satellite.give_next_objetive()
 		
 		self.skip_update = False
 
