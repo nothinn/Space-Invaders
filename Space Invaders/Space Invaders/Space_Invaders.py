@@ -131,7 +131,9 @@ class MyGame(arcade.Window):
 
 			self.skip_update = True
 			#functions.print_best_shots(possibilities)
-			print(functions.get_ordered_target_list(possibilities))
+			ordered_list = functions.get_ordered_target_list(possibilities)
+			print(ordered_list)
+			functions.plot_percentage(len(self.debris_list), ordered_list)
 			#self.satellite.give_objective(possibilities)
 			self.satellite.give_objectives(possibilities)
 
