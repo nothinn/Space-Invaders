@@ -22,6 +22,7 @@ Note, generated plots should not be interacted with. This will crash the program
 * ENTER: Shoot projectile from satellite
 * M: Make debris and shoot at it immediately
 * L: Apply impulse to debris 0.
-* R: Rotate satellite to random angle.
+* R: Rotate satellite to angle from user.
 * C: Create random debris
 * T: Runs the position/time seek function 
+* N: Finds possiple objectives, and starts mission to shoot them
