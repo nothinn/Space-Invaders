@@ -219,6 +219,10 @@ class MyGame(arcade.Window):
 			import time
 			time.sleep(10)
 
+		#Print information about debris
+		elif symbol == arcade.key.W:
+			functions.print_debris(self.debris_list)
+
 
 	
 	def on_key_release(self, symbol, modifiers):

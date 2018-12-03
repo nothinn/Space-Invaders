@@ -805,6 +805,18 @@ def weight_needed(debris,satellite):
 
 from numpy.random import rand
 
+def print_debris(debris_list):
+
+	print()
+	print("Debris | Eccentricity |   Period   |   Weight  | periapsis |")
+	for number, debris in  enumerate(debris_list):
+		print("{:6} |    {:#9.2} | {:6.5} | {:6.4} | {:6.5} |".format(
+			number, 
+			debris.orbit.ecc.value,
+			debris.orbit.period.to(u.min),
+			debris.mass,
+			debris.orbit.r_p - 6371*u.km
+			))
 
 def plot_result(crossing_times):
 	
