@@ -757,7 +757,7 @@ def print_best_shots(search_list):
 def weight_needed(debris,satellite):
 
 	#Goal is the karman line and 5 km within for full impact
-	goal = 6371 *u.km+ 120*u.km - 5*u.km
+	goal = 6371 *u.km+ 100*u.km - 5*u.km
 
 	#We start with a 10 gram projectile
 	weight = 10*u.g

@@ -245,7 +245,7 @@ class MyGame(arcade.Window):
 		#Draw Earth and Karman line
 		arcade.draw_circle_filled(self.earth.center_x, self.earth.center_y, 6371 * 1000 * self.canvas_info[2] , arcade.color.BLUE)
 		if(self.display_karman_line):
-			arcade.draw_circle_outline(self.earth.center_x, self.earth.center_y, (120 + 6371) * 1000 * self.canvas_info[2] , arcade.color.CYAN, 1)
+			arcade.draw_circle_outline(self.earth.center_x, self.earth.center_y, (100 + 6371) * 1000 * self.canvas_info[2] , arcade.color.CYAN, 1)
 			arcade.draw_circle_outline(self.earth.center_x, self.earth.center_y, (2000 + 6371) * 1000 * self.canvas_info[2] , arcade.color.CYBER_GRAPE, 1)
 
 		#Draw all sprites
@@ -364,7 +364,7 @@ class MyGame(arcade.Window):
 				member.update(delta_time*self.TIME_MULTIPLIER, self.canvas_info)
 
 				#Check if debris is within the karman line plus the radius of earth
-				if np.sqrt(member.debris.model_x**2 + member.debris.model_y**2) < 6371*u.km + 120*u.km:
+				if np.sqrt(member.debris.model_x**2 + member.debris.model_y**2) < 6371*u.km + 100*u.km:
 					member.kill()
 					print("Killed netted debris")
 					self.netted_debris_list.remove(member)
