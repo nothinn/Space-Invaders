@@ -16,6 +16,7 @@ Note, generated plots should not be interacted with. This will crash the program
 * O: Zoom out
 * P: Pause simulation
 * Y: Toggle center of screen to be earth or satellite
+* W: Print information about debris
 
 
 ### Test-buttons
