@@ -127,7 +127,8 @@ class MyGame(arcade.Window):
 
 
 		elif symbol == arcade.key.N:
-			possibilities = functions.find_crossing_times(self.satellite,self.debris_list,86400)
+			search_time = float(input("Write for how many hours the seach space should be: "))
+			possibilities = functions.find_crossing_times(self.satellite,self.debris_list, ((search_time*u.h).to(u.s)).value)
 
 			self.skip_update = True
 			#functions.print_best_shots(possibilities)
