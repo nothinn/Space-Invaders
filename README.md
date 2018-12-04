@@ -1,7 +1,6 @@
 # Space-Invaders
 
 ## How to use the simulator
-Note, generated plots should not be interacted with. This will crash the program.
 
 ## Packages used
 * Arcade
