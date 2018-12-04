@@ -850,7 +850,9 @@ def plot_result(crossing_times):
 
 	ax.grid(True)
 
-	plt.pause(0.001)
+	print("Close plot to proceed")
+
+	plt.show(0.001)
 
 	
 def take_time(shoot_info):
@@ -896,6 +898,8 @@ def plot_percentage(tot_debris, ordered_list):
 	plt.ylabel("Debris Removed [%]")
 	plt.grid(True)
 
+	print("Close plot to proceed")
+	
 	plt.show()
 
 	print("average mass: {}".format(tot_mass/count) )
