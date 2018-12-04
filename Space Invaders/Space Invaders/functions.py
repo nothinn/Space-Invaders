@@ -878,6 +878,7 @@ def plot_percentage(tot_debris, ordered_list):
 	x_axis = list()
 	y_axis = list()
 	count = 0
+	tot_mass = 0 * u.kg
 
 	x_axis.append(0)
 	y_axis.append(0)
@@ -886,6 +887,7 @@ def plot_percentage(tot_debris, ordered_list):
 		count += 1
 		x_axis.append(entry[0].to(u.hour).value)
 		y_axis.append((count/tot_debris) * 100)
+		tot_mass += entry[4]
 
 	plt.plot(x_axis, y_axis)
 	plt.plot(x_axis, y_axis, 'ro')
@@ -895,4 +897,6 @@ def plot_percentage(tot_debris, ordered_list):
 	plt.grid(True)
 
 	plt.show()
+
+	print("average mass: {}".format(tot_mass/count) )
 
