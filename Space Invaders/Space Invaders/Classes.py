@@ -23,8 +23,7 @@ class netted_debris():
 	def __init__(self, projectile, debris):
 		self.projectile = projectile
 		self.debris = debris
-
-
+		
 		self.debris.orbit = functions.orbit_impulse(debris.orbit, functions.velocity_change(projectile, debris))
 
 		print(self.debris.orbit.r_p - 6371*u.km)
@@ -36,7 +35,6 @@ class netted_debris():
 	def kill(self):
 		self.debris.kill()
 		self.projectile.kill()
-
 
 
 class debris(arcade.Sprite):
@@ -71,13 +69,9 @@ class debris(arcade.Sprite):
 
 	def give_impulse(self):
 		
-		#print(functions.get_vector_orbit(self.orbit))
 		self.orbit = functions.orbit_impulse(self.orbit,[100,0,0])
 
-
 	def update(self, delta_time, canvas_info):
-		#self.model_x += self.vel_vector[0]*delta_time
-		#self.model_y += self.vel_vector[1]*delta_time
 
 		self.altitude = round(math.sqrt((self.model_x.value)**2 + (self.model_y.value)**2) - 6371, 3)
 
@@ -86,10 +80,6 @@ class debris(arcade.Sprite):
 		self.model_x, self.model_y = functions.orbit_to_position(self.orbit)
 		self.set_vel_vector()
 		self.center_x, self.center_y = functions.get_canvas_pos(self.model_x, self.model_y, canvas_info)
-
-
-
-
 
 
 class projectile(arcade.Sprite):
@@ -101,16 +91,13 @@ class projectile(arcade.Sprite):
 			x *= u.km
 			y *= u.km
 			print("Projectile called without units")
-		
 
-		#print(x)
-		#print(y)
 		self.model_x = x #model is the postion in the background model
 		self.model_y = y
 		self.center_x, self.center_y = functions.get_canvas_pos(x, y, canvas_info) #center is the postion on canvas
 
-
 		self.vel_vector = vel_vector
+
 		if type(self.vel_vector) != type([0,0,0]*u.m/u.s):
 			self.vel_vector = self.vel_vector *u.m/u.s
 
@@ -138,9 +125,6 @@ class earth(arcade.Sprite):
 	
 	def update(self, delta_time, canvas_info):
 		self.center_x, self.center_y = functions.get_canvas_pos(self.model_x, self.model_y, canvas_info)
-
-
-
 
 
 class satellite(arcade.Sprite):
@@ -219,10 +203,10 @@ class satellite(arcade.Sprite):
 
 		self.center_x, self.center_y = functions.get_canvas_pos(self.model_x, self.model_y, canvas_info)
 	
-	def start_rotation(self, angle_goal):
+	def start_rotation(self, angle_goal): #sets infromation to start update on next update
 		self.rotation_start = [True, angle_goal]
 
-	def rotate(self, delta_time, direction):
+	def rotate(self, delta_time, direction): #Manuel rotation - Not used any more
 		self.angle += delta_time * direction*50
 
 
@@ -244,13 +228,10 @@ class satellite(arcade.Sprite):
 					self.rotate(delta_time,-movement)
 
 
-
-
-
-	def has_objective(self):
+	def has_objective(self): #are the satellite about to shoot debris
 		return self.has_objective
 
-	def give_objective(self, possibilities):
+	def give_objective(self, possibilities): # give a debris a obejctive
 		self.has_objective = True
 
 		first_to_shoot = functions.get_lightest_shot(possibilities)
@@ -272,7 +253,7 @@ class satellite(arcade.Sprite):
 		
 		self.time_to_shoot = wait_time
 
-	def give_objectives(self, possibilities):
+	def give_objectives(self, possibilities): # Give multiples debis as obejctives
 		self.has_objective = True
 
 		objective_list = functions.get_ordered_target_list(possibilities)
@@ -284,7 +265,7 @@ class satellite(arcade.Sprite):
 		self.objective_list = objective_list
 		self.give_next_objetive()
 
-	def give_next_objetive(self):
+	def give_next_objetive(self): # when a debris has been shot the next debris are being given as obejtive
 		if self.has_objective:
 			if self.objective_iterator >= len(self.objective_list):
 				self.has_objective = False
@@ -312,7 +293,7 @@ class satellite(arcade.Sprite):
 					print(self.time_to_hit)
 
 
-	def get_projectile(self, mass = None):
+	def get_projectile(self, mass = None): # shoots projectile
 
 		if mass == None:
 			mass = self.weight_objective

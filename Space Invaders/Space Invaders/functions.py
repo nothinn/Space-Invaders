@@ -18,14 +18,15 @@ from astropy import units as u
 
 import matplotlib.pyplot as plt
 
-def collision(projectile, debris):
+def collision(projectile, debris): # checks for collition by checking if debris and projectle are within 10km of each other
 
 	if abs(projectile.model_x - debris.model_x) < 10000 * u.m:
 		if abs(projectile.model_y - debris.model_y) < 10000 * u.m:
 			return True
 	return False
 
-def velocity_change(projectile,debris):
+
+def velocity_change(projectile,debris): #calculates the change in the debris velocity vector due to impact with projectile
 
 	debris_vel_vector = get_vector_orbit(debris.orbit)
 
@@ -35,7 +36,8 @@ def velocity_change(projectile,debris):
 
 	return [vel_x, vel_y]
 
-def vec_to_angle_2d(x,y):
+
+def vec_to_angle_2d(x,y): #Calculates the angle of a vector in degrees
 	if type(x) == type(1*u.km) :
 		x = x.value
 		y = y.value
@@ -45,36 +47,26 @@ def vec_to_angle_2d(x,y):
 	
 	return degrees
 
-def orbit_to_position(orbit):
-	#a = orbit.state.a
-	#e = orbit.state.ecc
-	#theta = orbit.state.nu / u.rad
 
-	#Equation from https://en.wikipedia.org/wiki/Kepler_orbit#Johannes_Kepler
-	#The radius equation
-	#upper_part = a*(1-e*e)
-	#lower_part = 1+e*math.cos(theta )
+def angle_to_vec_2d(angle): #Returns a unit vector based on an angle
+	x = math.cos(math.radians(angle))
+	y = math.sin(math.radians(angle))
+	return x, y
 
-	#distance = upper_part/lower_part
 
-	#x,y = angle_to_vec_2d(math.degrees(theta))
-
-	#x *= distance
-	#y *= distance
-
-	#print("x:{0:08.2f} y:{1:08.2f}".format(x,y))
-
-	#Multiply by 1000 to get it in meters
-
+def orbit_to_position(orbit): #Returns the coordinate position of an obejct from its orbit type
+	
 	x = orbit.r[0]
 	y = orbit.r[1]
 
 	return x, y
 
-def get_vector_orbit(orbit_element):
+
+def get_vector_orbit(orbit_element): # Returns an obejts instantaneous velocity from its orbit type
 	return orbit_element.state.v
+
 	
-def get_angle_between_two_orbits(orbit1, orbit2):
+def get_angle_between_two_orbits(orbit1, orbit2): #Calculate the angle between two obejcts position vector in degrees
 	x1, y1 = orbit_to_position(orbit1)
 	x2, y2 = orbit_to_position(orbit2)
 
@@ -84,28 +76,20 @@ def get_angle_between_two_orbits(orbit1, orbit2):
 	return np.arctan2(dist_y, dist_x).to(u.deg)
 
 	
-
-
-def orbit_impulse(orbit, vector):
+def orbit_impulse(orbit, vector): #alter an obejcts orbit due an impulse (used for debris projectile collisions)
 	
 	dv = [vector[0].value,vector[1].to(vector[0].unit).value, 0]*vector[0].unit
-
-
-	#if type(vector) != type([0,0,0]*u.m/u.s):
-	#	dv = vector *u.m/u.s
 
 	man = Maneuver.impulse(dv)
 
 	return orbit.apply_maneuver(man)
 
 
-def angle_to_vec_2d(angle):
-	x = math.cos(math.radians(angle))
-	y = math.sin(math.radians(angle))
-	return x, y
 
 
-def get_net_angle_immediate(abs_vel_net, satellite, debris):
+def get_net_angle_immediate(abs_vel_net, satellite, debris): 
+	#Calculate the angle you should aim to hit a moving target, assuming everything moves linearly
+	#Also returns the time before the collition occurs
 	pos_x_satalite = satellite.model_x
 	pos_y_satalite = satellite.model_y
 	vel_x_debris = debris.vel_vector[0]
@@ -140,9 +124,10 @@ def get_net_angle_immediate(abs_vel_net, satellite, debris):
 	rotated_aim_1 = np.arctan2(((pos_x_debris_after_rotation**2) * abs_vel_debris + np.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2) * pos_y_debris_after_rotation)/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2),
 	                          (-abs_vel_debris * pos_y_debris_after_rotation + np.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2))*pos_x_debris_after_rotation/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2))
     
-	'''rotated_aim_2 = math.atan2(((pos_x_debris_after_rotation**2) * abs_vel_debris - math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2) * pos_y_debris_after_rotation)/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2), 
-                               -((abs_vel_debris * pos_y_debris_after_rotation + math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2))*pos_x_debris_after_rotation/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2)))
-    '''
+	# This was for negative time which doesnt make sense
+	#rotated_aim_2 = math.atan2(((pos_x_debris_after_rotation**2) * abs_vel_debris - math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2) * pos_y_debris_after_rotation)/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2), 
+    #                           -((abs_vel_debris * pos_y_debris_after_rotation + math.sqrt((pos_x_debris_after_rotation**2+pos_y_debris_after_rotation**2) * abs_vel_net**2 - (pos_x_debris_after_rotation**2) * abs_vel_debris**2))*pos_x_debris_after_rotation/(pos_x_debris_after_rotation**2 + pos_y_debris_after_rotation**2)))
+    
 	collision_time = pos_x_debris_after_rotation / (abs_vel_net * np.cos(rotated_aim_1)) # the time from fireing to the collision in seconds
 
     # get the angle in the non-roted system
@@ -153,8 +138,9 @@ def get_net_angle_immediate(abs_vel_net, satellite, debris):
 
 
 
-   #this functions returns the the time to wait before shooting if we want to hit the debris at a 90 degree angle
 def get_time_to_shoot(abs_vel_net, satellite, debris):
+	#This function does only work under cirtain conditions, and are not used in simulation
+	#this functions returns the the time to wait before shooting if we want to hit the debris at a 90 degree angle
 	pos_x_satalite = satellite.center_x
 	pos_y_satalite = satellite.center_y
 	vel_x_debris = debris.vel_vector[0]
@@ -207,10 +193,9 @@ def get_time_to_shoot(abs_vel_net, satellite, debris):
 		return -1 # the time to wait is negative which means we do not have time.
 	
 	return t_wait/100, aim
-
 	
 
-def get_canvas_pos(x, y, canvas_info):
+def get_canvas_pos(x, y, canvas_info): #calculate canvas postiotion based on canvas center and model postion
 	ref_x = canvas_info[0]
 	ref_y = canvas_info[1]
 	zoom_mult = canvas_info[2]
@@ -222,7 +207,7 @@ def get_canvas_pos(x, y, canvas_info):
 	return (x*zoom_mult - ref_x*zoom_mult + 300), (y*zoom_mult - ref_y*zoom_mult + 300)
 
 
-def get_random_circular_orbit():
+def get_random_circular_orbit(): #Returns position and velocity vector for a semi-random circular orbit in LEO
 	Er = 6371 # earth radius in km
 	r_length = random.uniform(160.0 + Er, 2000.0 + Er) # km
 	angle = random.uniform(0.0, math.pi)
@@ -244,7 +229,8 @@ def get_random_circular_orbit():
 
 	return r, vel
 
-def get_random_ellipse_orbit():
+
+def get_random_ellipse_orbit():#Returns position and velocity vector for a semi-random elliptical orbit in LEO
 	Er = 6371 # earth radius in km
 	r_length =  random.uniform(200.0 + Er, 2000.0 + Er) # km
 	angle = random.uniform(0.0, math.pi)
@@ -269,6 +255,7 @@ def get_random_ellipse_orbit():
 
 	return r, vel
 
+
 def rotate_satellite(satallite, angle_goal, start_time): 
 	# This function calculates the parameters for a rotation.
 	# The function assumes a initial angular velocity of 0.
@@ -292,9 +279,10 @@ def rotate_satellite(satallite, angle_goal, start_time):
 
 
 	#calculate time to get to half the goal angle
-	t = math.sqrt((math.radians(degrees_of_rotation))/aa) #
+	t = math.sqrt((math.radians(degrees_of_rotation))/aa) 
 
 	return [True, t, degrees_of_rotation, aa, start_time, satallite.angle]
+
 
 def update_satellite_rotation(satellite, current_time):
 	# This function updates the angle of the satillite during rotation
@@ -321,10 +309,12 @@ def update_satellite_rotation(satellite, current_time):
 
 	return new_angle, [True, t, degrees_of_rotation, aa, start_time, start_angle]
 
+
 def distance_distance_two_objects(ax, ay, bx, by):
 	return np.sqrt((bx-ax)**2 + (by-ay)**2)
 
-def orbit_direction(orbit):
+
+def orbit_direction(orbit): #Determines if an orbit are orbiting clock wise or counter clock wise
 	initial_x, initial_y = orbit_to_position(orbit)
 	later_x, later_y = orbit_to_position(orbit.propagate(60 * u.s))
 
@@ -345,7 +335,9 @@ def orbit_direction(orbit):
 	
 	return res #-1 counter clockwise, 1: clockwise
 
+
 def find_crossing_times(satellite, debris_list, seek_time):
+	#This functions seachs for postions in time and space where the satellite can shoot at a debris
 	import copy
 	#We make a copy to have the same orbit afterwards.
 	old_version = satellite.orbit.propagate(0.000001*u.s)
@@ -718,7 +710,8 @@ def find_crossing_times(satellite, debris_list, seek_time):
 	satellite.orbit = old_version
 	return result_list
 
-def get_first_shoot(search_list):
+
+def get_first_shoot(search_list): #Returns the first obejctive in the list of possiple postions to shoot for a debris
 	for debris_info in search_list:
 		if debris_info == False:
 			continue
@@ -730,7 +723,8 @@ def get_first_shoot(search_list):
 					return entry
 	return False
 
-def get_lightest_shot(search_list):
+
+def get_lightest_shot(search_list): #Finds the possibilty where the projectile is the lightest from all possibilities
 	lowest_weight = 10000*u.kg
 	best = False
 	for debris_info in search_list:
@@ -743,6 +737,7 @@ def get_lightest_shot(search_list):
 						best = entry
 	return best
 
+
 def print_best_shots(search_list):
 	for debris_info in search_list:
 		if debris_info == False:
@@ -754,7 +749,7 @@ def print_best_shots(search_list):
 
 			
 	
-def weight_needed(debris,satellite):
+def weight_needed(debris,satellite): #Finds "minimum" mass needed to get a debris into the atmosphere from a point found in the search function
 
 	#Goal is the karman line and 5 km within for full impact
 	goal = 6371 *u.km+ 100*u.km - 5*u.km
@@ -805,7 +800,8 @@ def weight_needed(debris,satellite):
 
 from numpy.random import rand
 
-def print_debris(debris_list):
+
+def print_debris(debris_list): #Prints debris information
 
 	print()
 	print("Debris | Eccentricity |   Period   |   Weight  | periapsis |")
@@ -818,7 +814,8 @@ def print_debris(debris_list):
 			debris.orbit.r_p - 6371*u.km
 			))
 
-def plot_result(crossing_times):
+
+def plot_result(crossing_times): #Plots results from from the search function
 	
 	plt.ion()
 	fig, ax = plt.subplots()
@@ -858,7 +855,8 @@ def plot_result(crossing_times):
 def take_time(shoot_info):
 	return shoot_info[0]
 
-def get_ordered_target_list(search_list):
+
+def get_ordered_target_list(search_list): # Returns an list ordered by time to shoot, from the result list from search function. Is used to start a mission
 	light_list = list()
 	for debris_info in search_list: #This for loop makes a list of lightest shots at every debris.
 		if debris_info != False:
@@ -876,7 +874,8 @@ def get_ordered_target_list(search_list):
 
 	return light_list
 
-def plot_percentage(tot_debris, ordered_list):
+
+def plot_percentage(tot_debris, ordered_list): #plots the percentage debris removed over time
 	x_axis = list()
 	y_axis = list()
 	count = 0

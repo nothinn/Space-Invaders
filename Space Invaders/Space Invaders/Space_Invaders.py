@@ -46,10 +46,6 @@ class MyGame(arcade.Window):
 
 		self.center_option = False # False satellite is center, True Earth is center
 
-		#self.canvas_center_x = 0 # equal to satalite real in (set update)
-		#self.canvas_center_y = 0
-		#self.zoom_mult = 1 
-
 		self.display_karman_line = True
 		self.display_coordinates = False
 		self.update = True
@@ -96,7 +92,8 @@ class MyGame(arcade.Window):
 
 
 
-	def on_key_press(self, symbol, modifiers):
+	def on_key_press(self, symbol, modifiers):#Buttons functions
+		
 		#Shoot projectile straight from satellite
 		if symbol == arcade.key.ENTER:
 
@@ -106,27 +103,8 @@ class MyGame(arcade.Window):
 			self.projectile_list.append(projectile)
 			self.sprites_list.append(projectile)
 			
-		#Make debris and shoot at it immediately
-		#elif symbol == arcade.key.M:
 
-		#	debris_vel = 0.15
-		#	debris_x = random.uniform(self.canvas_info[0] - 300, self.canvas_info[0] + 300)
-		#	debris_y = random.uniform(self.canvas_info[1] - 300, self.canvas_info[1] + 300)
-		#	debris_vel_vec = [math.cos(random.uniform(-1*math.pi,math.pi))*debris_vel, math.sin(random.uniform(-1*math.pi,math.pi))*debris_vel]
-		#	new_debris = Classes.debris(debris_x, debris_y, debris_vel_vec, "Images/debris.png",  self.canvas_info)
-		#	self.debris_list.append(new_debris)
-		#	self.sprites_list.append(new_debris)
-
-		#	pro_angle_1 = functions.get_net_angle_immediate(0.4, self.satellite, new_debris)
-
-		#	projetile_vel = 0.4
-		#	projetile_vel_vec = [math.cos(math.radians(pro_angle_1))*projetile_vel, math.sin(math.radians(pro_angle_1))*projetile_vel]
-		#	new_projectile = Classes.projectile(0.5, self.satellite.model_x, self.satellite.model_y, projetile_vel_vec, self.canvas_info)
-		#	self.projectile_list.append(new_projectile)
-		#	self.sprites_list.append(new_projectile)
-
-
-		elif symbol == arcade.key.N:
+		elif symbol == arcade.key.N: #Search shoot possibilities and start mission to shoot it
 			search_time = float(input("Write for how many hours the seach space should be: "))
 			possibilities = functions.find_crossing_times(self.satellite,self.debris_list, ((search_time*u.h).to(u.s)).value)
 
@@ -225,13 +203,6 @@ class MyGame(arcade.Window):
 			functions.print_debris(self.debris_list)
 
 
-	
-	def on_key_release(self, symbol, modifiers):
-		if symbol == arcade.key.LEFT:
-			self.left = 0
-		elif symbol == arcade.key.RIGHT:
-			self.right = 0
-
 	def get_max(self, max_value, value):
 		if(max_value < value):
 			max_value = value
@@ -243,8 +214,7 @@ class MyGame(arcade.Window):
 		return min_value
 
 
-
-	def on_draw(self):
+	def on_draw(self): #Draws the canvas
 		arcade.start_render()
 
 		#Draw Earth and Karman line
@@ -290,7 +260,7 @@ class MyGame(arcade.Window):
 		str_middle_scale = 0
 		str_right_scale = 0
 
-		if(self.canvas_info[2]):
+		if(self.canvas_info[2]): #Sets string for scale in buttom right corner
 			if(middle_scale >= 1000):
 				middle_scale = middle_scale/1000
 				right_scale = right_scale/1000
@@ -314,12 +284,10 @@ class MyGame(arcade.Window):
 
 
 
-	def update(self, delta_time):
+	def update(self, delta_time): #Continuesly updates values
 
-		if(self.update == True and self.skip_update == False):
-
+		if(self.update == True and self.skip_update == False): # we skip a frame when seaching for shoot possibilites as this takes a long time
 			
-
 			if self.slowed:
 				self.TIME_MULTIPLIER = self.old_TIME_MULTIPLIER
 				self.slowed = False
@@ -343,29 +311,29 @@ class MyGame(arcade.Window):
 				self.slowed = True 
 			
 				
-
-			self.total_time += delta_time * self.TIME_MULTIPLIER
-			if self.center_option:
+			
+			self.total_time += delta_time * self.TIME_MULTIPLIER #Update total time elapsed
+			if self.center_option: # when satellite is center of canvas
 				self.canvas_info[0] = self.satellite.model_x.value * 1000
 				self.canvas_info[1] = self.satellite.model_y.value * 1000
-			else:
+			else: #when earth is center of canvas
 				self.canvas_info[0] = SCREEN_WIDTH/2
 				self.canvas_info[1] = SCREEN_HEIGHT/2
 
-			if self.satellite.time_to_shoot <= 0:
+			if self.satellite.time_to_shoot <= 0: #shoots projectile
 				shot = self.satellite.get_projectile()
 				self.projectile_list.append(shot)
 				self.sprites_list.append(shot)
 				self.satellite.time_to_shoot = float("inf") * u.s
 				
+			self.satellite.update(delta_time*self.TIME_MULTIPLIER, self.canvas_info, self.total_time) #update satellite varibles
 
-			self.satellite.update(delta_time*self.TIME_MULTIPLIER, self.canvas_info, self.total_time)
-			for member in self.projectile_list:
+			for member in self.projectile_list: #update projectiles
 				member.update(delta_time*self.TIME_MULTIPLIER, self.canvas_info)
 
-			for member in self.debris_list:
+			for member in self.debris_list: #Update debris
 				member.update(delta_time*self.TIME_MULTIPLIER, self.canvas_info)
-			for member in self.netted_debris_list:
+			for member in self.netted_debris_list: #Update nettet debris
 				member.update(delta_time*self.TIME_MULTIPLIER, self.canvas_info)
 
 				#Check if debris is within the karman line plus the radius of earth
